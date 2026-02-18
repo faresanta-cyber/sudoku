@@ -3,75 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sudoku Football 6x6</title>
+    <title>Examen: Sudoku Football</title>
     <style>
-        :root {
-            --bg: #132a13;
-            --field: #2e7d32;
-            --accent: #ffeb3b;
-            --text: #ffffff;
-        }
-        body { 
-            font-family: 'Segoe UI', sans-serif; 
-            background: var(--bg); 
-            color: var(--text); 
-            display: flex; flex-direction: column; align-items: center; 
-            margin: 0; padding: 10px;
-        }
+        :root { --field: #2e7d32; --accent: #ffeb3b; --text: #ffffff; }
+        body { font-family: sans-serif; background: #132a13; color: white; display: flex; flex-direction: column; align-items: center; padding: 10px; margin: 0; }
         
-        /* Contenedor del Tablero */
-        .grid { 
-            display: grid; 
-            grid-template-columns: repeat(6, 55px); 
-            grid-template-rows: repeat(6, 55px); 
-            gap: 2px; 
-            background: #000; 
-            border: 4px solid #000;
-            border-radius: 8px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
+        .header-info { text-align: center; background: rgba(0,0,0,0.4); width: 100%; padding: 10px 0; margin-bottom: 15px; border-bottom: 2px solid var(--accent); }
+        .score-badge { font-size: 1.2rem; font-weight: bold; color: var(--accent); }
 
-        .cell { 
-            width: 55px; height: 55px; 
-            background: var(--field); 
-            display: flex; align-items: center; justify-content: center; 
-            font-size: 30px; cursor: pointer; transition: 0.2s;
-            user-select: none;
-        }
+        .grid { display: grid; grid-template-columns: repeat(6, 50px); grid-template-rows: repeat(6, 50px); background: #000; border: 5px solid #000; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .cell { width: 50px; height: 50px; background: var(--field); display: flex; align-items: center; justify-content: center; font-size: 25px; cursor: pointer; border: 1px solid rgba(0,0,0,0.1); }
 
-        /* Bordes de bloques 2x3 */
-        .cell:nth-child(3n) { border-right: 3px solid #000; }
+        /* Rejilla gruesa para áreas 2x3 */
+        .cell:nth-child(3n) { border-right: 4px solid #000; }
         .cell:nth-child(6n) { border-right: none; }
-        div:nth-child(n+13):nth-child(-n+18),
-        div:nth-child(n+25):nth-child(-n+30) { border-bottom: 3px solid #000; }
+        div:nth-child(n+13):nth-child(-n+18), div:nth-child(n+25):nth-child(-n+30) { border-bottom: 4px solid #000; }
 
-        .cell:hover { background: #388e3c; }
-        .selected { background: var(--accent) !important; transform: scale(1.05); z-index: 10; }
-        .fixed { background: #1b5e20; cursor: default; filter: grayscale(0.5); }
+        .selected { background: var(--accent) !important; color: #000; }
+        .fixed { background: #1b5e20; cursor: default; filter: brightness(0.8); }
         .error { background: #d32f2f !important; }
 
-        /* Barra de herramientas */
-        .toolbar { 
-            margin-top: 20px; 
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
-            background: rgba(0,0,0,0.3); padding: 15px; border-radius: 15px;
-        }
-        .icon-btn { 
-            font-size: 28px; width: 60px; height: 60px; border-radius: 10px;
-            border: none; background: white; cursor: pointer; transition: 0.2s;
-        }
-        .icon-btn:hover { transform: translateY(-5px); background: var(--accent); }
+        .toolbar { margin-top: 15px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .icon-btn { font-size: 24px; width: 60px; height: 60px; border-radius: 8px; border: none; background: white; cursor: pointer; }
         
-        .reset-btn {
-            margin-top: 15px; background: transparent; color: white; border: 1px solid white;
-            padding: 8px 15px; border-radius: 5px; cursor: pointer;
-        }
+        #victory-msg { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); flex-direction: column; align-items: center; justify-content: center; z-index: 1000; text-align: center; }
+        .btn-next { background: var(--accent); color: #000; border: none; padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border-radius: 10px; cursor: pointer; margin-top: 20px; }
     </style>
 </head>
 <body>
 
-    <h2 style="margin-bottom:5px;">⚽ SUDOKU FOOTBALL 6x6</h2>
-    <p style="font-size: 0.8rem; opacity: 0.8;">Completa el campo sin repetir figuras</p>
+    <div class="header-info">
+        <div class="score-badge" id="progress-text">PARTIDO 1 DE 5</div>
+        <div style="font-size: 0.8rem;">Resuelve correctamente para ganar 1 punto</div>
+    </div>
 
     <div class="grid" id="grid"></div>
 
@@ -82,44 +46,53 @@
         <button class="icon-btn" onclick="put('📣')">📣</button>
         <button class="icon-btn" onclick="put('🧤')">🧤</button>
         <button class="icon-btn" onclick="put('🚩')">🚩</button>
-        <button class="icon-btn" style="grid-column: span 3; height: 40px; font-size: 16px;" onclick="put('')">BORRAR ❌</button>
+        <button class="icon-btn" style="grid-column: span 3; height: 35px; font-size: 14px;" onclick="put('')">BORRAR FIGURA ❌</button>
     </div>
 
-    <button class="reset-btn" onclick="location.reload()">Reiniciar Partido</button>
+    <div id="victory-msg">
+        <h1 id="win-title" style="color: var(--accent); font-size: 3rem; margin: 0;">¡GOL!</h1>
+        <p id="win-desc" style="font-size: 1.5rem;">Has ganado 1 punto.</p>
+        <button class="btn-next" id="btn-action" onclick="nextLevel()">PASAR AL SIGUIENTE PARTIDO</button>
+    </div>
 
     <script>
         const grid = document.getElementById('grid');
         let selected = null;
+        let currentLevelIndex = 0;
+        let totalScore = 0;
+        const totalLevelsToPlay = 5;
 
-        // Mapa de iconos: 1=Balon, 2=Copa, 3=Camiseta, 4=Megafono, 5=Guantes, 6=Banderin
         const icons = { 1:'⚽', 2:'🏆', 3:'👕', 4:'📣', 5:'🧤', 6:'🚩' };
 
-        // Tablero inicial 6x6 (puedes cambiar los números para crear otros niveles)
-        const layout = [
-            [1, 0, 0, 0, 5, 0],
-            [0, 0, 6, 0, 0, 1],
-            [0, 1, 0, 2, 0, 0],
-            [0, 0, 4, 0, 1, 0],
-            [6, 0, 0, 3, 0, 0],
-            [0, 4, 0, 0, 0, 2]
+        const niveles = [
+            [ [1,0,0,0,5,0],[0,0,6,0,0,1],[0,1,0,2,0,0],[0,0,4,0,1,0],[6,0,0,3,0,0],[0,4,0,0,0,2] ],
+            [ [0,2,0,4,0,0],[1,0,0,0,6,0],[0,0,2,0,0,5],[6,0,0,1,0,0],[0,3,0,0,0,2],[0,0,5,0,3,0] ],
+            [ [0,0,4,0,0,6],[3,0,0,1,0,0],[0,5,0,0,2,0],[0,1,0,0,6,0],[0,0,2,0,0,5],[6,0,0,3,0,0] ],
+            [ [5,0,0,2,0,0],[0,1,0,0,3,0],[0,0,3,0,0,1],[6,0,0,4,0,0],[0,4,0,0,2,0],[0,0,1,0,0,6] ],
+            [ [0,6,0,0,4,0],[0,0,1,5,0,0],[3,0,0,0,0,2],[5,0,0,0,0,4],[0,0,2,6,0,0],[0,4,0,0,1,0] ],
+            [ [2,0,5,0,0,1],[0,0,0,3,0,0],[0,4,0,0,6,0],[0,6,0,0,2,0],[0,0,3,0,0,0],[4,0,0,5,0,3] ]
         ];
 
-        function createGrid() {
+        // Mezclar niveles para que cada vez sea distinto
+        niveles.sort(() => Math.random() - 0.5);
+
+        function loadLevel() {
+            grid.innerHTML = '';
+            document.getElementById('progress-text').innerText = `PARTIDO ${currentLevelIndex + 1} DE 5`;
+            const layout = niveles[currentLevelIndex];
+
             layout.forEach((row, r) => {
                 row.forEach((val, c) => {
                     const cell = document.createElement('div');
                     cell.className = 'cell';
-                    cell.dataset.r = r;
-                    cell.dataset.c = c;
-                    
+                    cell.dataset.r = r; cell.dataset.c = c;
                     if (val !== 0) {
                         cell.innerText = icons[val];
                         cell.classList.add('fixed');
                     } else {
                         cell.onclick = () => {
                             document.querySelectorAll('.cell').forEach(cl => cl.classList.remove('selected'));
-                            selected = cell;
-                            cell.classList.add('selected');
+                            selected = cell; cell.classList.add('selected');
                         };
                     }
                     grid.appendChild(cell);
@@ -130,35 +103,63 @@
         function put(emoji) {
             if (selected && !selected.classList.contains('fixed')) {
                 selected.innerText = emoji;
-                validate(selected, emoji);
+                validate();
             }
         }
 
-        function validate(cell, val) {
-            cell.classList.remove('error');
-            if (val === "") return;
-
-            const r = parseInt(cell.dataset.r);
-            const c = parseInt(cell.dataset.c);
-            const all = document.querySelectorAll('.cell');
+        function validate() {
+            const cells = Array.from(document.querySelectorAll('.cell'));
             let hasError = false;
+            let isComplete = true;
 
-            all.forEach((other, i) => {
-                const or = Math.floor(i / 6);
-                const oc = i % 6;
-                if (other !== cell && other.innerText === val) {
-                    // Fila o Columna
-                    if (or === r || oc === c) hasError = true;
-                    // Bloque 2x3
-                    const startR = Math.floor(r / 2) * 2;
-                    const startC = Math.floor(c / 3) * 3;
-                    if (or >= startR && or < startR + 2 && oc >= startC && oc < startC + 3) hasError = true;
-                }
+            cells.forEach(cell => {
+                cell.classList.remove('error');
+                if (cell.innerText === "") isComplete = false;
+                const val = cell.innerText;
+                if (!val) return;
+
+                const r = parseInt(cell.dataset.r);
+                const c = parseInt(cell.dataset.c);
+
+                cells.forEach(other => {
+                    if (cell === other) return;
+                    const or = parseInt(other.dataset.r);
+                    const oc = parseInt(other.dataset.c);
+                    if (other.innerText === val) {
+                        if (or === r || oc === c) { cell.classList.add('error'); hasError = true; }
+                        const startR = Math.floor(r / 2) * 2;
+                        const startC = Math.floor(c / 3) * 3;
+                        if (or >= startR && or < startR + 2 && oc >= startC && oc < startC + 3) {
+                            cell.classList.add('error'); hasError = true;
+                        }
+                    }
+                });
             });
-            if (hasError) cell.classList.add('error');
+
+            if (isComplete && !hasError) {
+                totalScore++;
+                showVictory();
+            }
         }
 
-        createGrid();
+        function showVictory() {
+            const msg = document.getElementById('victory-msg');
+            msg.style.display = 'flex';
+            if (currentLevelIndex + 1 >= totalLevelsToPlay) {
+                document.getElementById('win-title').innerText = "🏆 CAMPEONES";
+                document.getElementById('win-desc').innerText = `Examen Finalizado. Calificación: ${totalScore}/5`;
+                document.getElementById('btn-action').innerText = "REINICIAR EXAMEN";
+                document.getElementById('btn-action').onclick = () => location.reload();
+            }
+        }
+
+        function nextLevel() {
+            currentLevelIndex++;
+            document.getElementById('victory-msg').style.display = 'none';
+            loadLevel();
+        }
+
+        loadLevel();
     </script>
 </body>
 </html>
