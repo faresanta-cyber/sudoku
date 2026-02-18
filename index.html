@@ -3,88 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Examen: Sudoku Football</title>
+    <title>Examen Sudoku Football Pro</title>
     <style>
-        :root { --field: #2e7d32; --accent: #ffeb3b; --text: #ffffff; }
-        body { font-family: sans-serif; background: #0b1a0b; color: white; display: flex; flex-direction: column; align-items: center; padding: 0; margin: 0; }
+        :root { --field: #2e7d32; --accent: #ffeb3b; --text: #ffffff; --dark: #0b1a0b; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--dark); color: white; display: flex; flex-direction: column; align-items: center; margin: 0; padding: 0; min-height: 100vh; }
         
-        .header-info { text-align: center; background: #000; width: 100%; padding: 15px 0; margin-bottom: 20px; border-bottom: 4px solid var(--accent); }
-        #progress-text { font-size: 1.6rem; font-weight: bold; color: var(--accent); display: block; }
+        .header-info { text-align: center; background: #000; width: 100%; padding: 20px 0; border-bottom: 5px solid var(--accent); margin-bottom: 20px; }
+        #progress-text { font-size: 2rem; font-weight: bold; color: var(--accent); text-transform: uppercase; }
 
-        /* TABLERO */
+        .game-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 40px; align-items: flex-start; padding: 20px; }
+
+        /* TABLERO GRANDE */
         .grid { 
             display: grid; 
-            grid-template-columns: repeat(6, 50px); 
-            grid-template-rows: repeat(6, 50px); 
+            grid-template-columns: repeat(6, 70px); 
+            grid-template-rows: repeat(6, 70px); 
             background: #000; 
-            border: 6px solid #000; /* Borde exterior grueso */
+            border: 8px solid #000;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
         }
 
         .cell { 
-            width: 50px; height: 50px; 
+            width: 70px; height: 70px; 
             background: var(--field); 
             display: flex; align-items: center; justify-content: center; 
-            font-size: 28px; cursor: pointer; 
-            border: 1px solid rgba(0,0,0,0.3); /* Borde fino normal */
-            box-sizing: border-box;
+            font-size: 40px; cursor: pointer; 
+            border: 1px solid rgba(0,0,0,0.2);
+            box-sizing: border-box; transition: 0.2s;
         }
 
-        /* --- REJILLA GRUESA CORREGIDA --- */
+        /* DIVISIONES GRUESAS POR BLOQUE 2x3 */
+        .cell:nth-child(3n) { border-right: 8px solid #000 !important; }
+        .cell:nth-child(6n) { border-right: none !important; }
+        .cell:nth-child(n+13):nth-child(-n+18), 
+        .cell:nth-child(n+25):nth-child(-n+30) { border-bottom: 8px solid #000 !important; }
+
+        .selected { background: var(--accent) !important; transform: scale(1.05); z-index: 10; box-shadow: 0 0 15px var(--accent); }
+        .fixed { background: #1b5e20; cursor: default; filter: brightness(0.75); }
+        .error { background: #ff4d4d !important; animation: shake 0.4s; }
+
+        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
+
+        /* PANEL LATERAL DE FIGURAS */
+        .sidebar { display: flex; flex-direction: column; gap: 15px; background: rgba(0,0,0,0.5); padding: 25px; border-radius: 20px; border: 2px solid var(--accent); }
+        .sidebar h3 { margin: 0 0 10px 0; text-align: center; color: var(--accent); }
+        .icon-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
         
-        /* Línea vertical gruesa en el medio (después de la columna 3) */
-        .cell:nth-child(3n) { 
-            border-right: 6px solid #000 !important; 
+        .icon-btn { 
+            font-size: 35px; width: 80px; height: 80px; border-radius: 15px; 
+            border: 3px solid #000; background: white; cursor: pointer; 
+            transition: transform 0.2s, background 0.2s;
         }
-        /* Quitar borde derecho a la última columna para que no se vea doble */
-        .cell:nth-child(6n) { 
-            border-right: none !important; 
-        }
+        .icon-btn:hover { transform: scale(1.1); background: var(--accent); }
+        .delete-btn { grid-column: span 2; height: 50px; font-size: 18px; font-weight: bold; background: #ff4444; color: white; border: none; border-radius: 10px; cursor: pointer; }
 
-        /* Líneas horizontales gruesas (después de fila 2 y fila 4) */
-        /* Celdas de la fila 2 (7 a 12) y fila 4 (19 a 24) */
-        .cell:nth-child(n+7):nth-child(-n+12),
-        .cell:nth-child(n+19):nth-child(-n+24),
-        .cell:nth-child(n+31):nth-child(-n+36) {
-            border-bottom: 6px solid #000 !important;
-        }
-        /* Quitar borde inferior a la última fila */
-        .cell:nth-child(n+31):nth-child(-n+36) {
-            border-bottom: none !important;
-        }
+        #victory-msg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); flex-direction: column; align-items: center; justify-content: center; z-index: 1000; text-align: center; }
+        .btn-next { background: var(--accent); color: #000; border: none; padding: 20px 40px; font-size: 1.5rem; font-weight: bold; border-radius: 50px; cursor: pointer; margin-top: 30px; }
 
-        .selected { background: var(--accent) !important; color: #000; outline: 2px solid white; z-index: 5; }
-        .fixed { background: #1b5e20; cursor: default; filter: brightness(0.8); }
-        .error { background: #d32f2f !important; }
-
-        .toolbar { margin-top: 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .icon-btn { font-size: 26px; width: 65px; height: 65px; border-radius: 12px; border: 2px solid #000; background: white; cursor: pointer; }
-        
-        #victory-msg { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); flex-direction: column; align-items: center; justify-content: center; z-index: 1000; text-align: center; }
-        .btn-next { background: var(--accent); color: #000; border: none; padding: 15px 35px; font-size: 1.3rem; font-weight: bold; border-radius: 50px; cursor: pointer; margin-top: 25px; }
+        @media (max-width: 600px) {
+            .grid { grid-template-columns: repeat(6, 50px); grid-template-rows: repeat(6, 50px); }
+            .cell { width: 50px; height: 50px; font-size: 28px; }
+            .game-container { flex-direction: column; align-items: center; }
+        }
     </style>
 </head>
 <body>
 
     <div class="header-info">
-        <span id="progress-text">PARTIDO 1 DE 5</span>
-        <div style="font-size: 0.9rem; margin-top: 5px; color: #aaa;">Completa las 6 áreas de 2x3</div>
+        <span id="progress-text">CARGANDO PARTIDO...</span>
     </div>
 
-    <div class="grid" id="grid"></div>
+    <div class="game-container">
+        <div class="grid" id="grid"></div>
 
-    <div class="toolbar">
-        <button class="icon-btn" onclick="put('⚽')">⚽</button>
-        <button class="icon-btn" onclick="put('🏆')">🏆</button>
-        <button class="icon-btn" onclick="put('👕')">👕</button>
-        <button class="icon-btn" onclick="put('📣')">📣</button>
-        <button class="icon-btn" onclick="put('🧤')">🧤</button>
-        <button class="icon-btn" onclick="put('🚩')">🚩</button>
-        <button class="icon-btn" style="grid-column: span 3; height: 40px; font-size: 16px;" onclick="put('')">BORRAR ❌</button>
+        <div class="sidebar">
+            <h3>FIGURAS</h3>
+            <div class="icon-grid">
+                <button class="icon-btn" onclick="put('⚽')">⚽</button>
+                <button class="icon-btn" onclick="put('🏆')">🏆</button>
+                <button class="icon-btn" onclick="put('👕')">👕</button>
+                <button class="icon-btn" onclick="put('📣')">📣</button>
+                <button class="icon-btn" onclick="put('🧤')">🧤</button>
+                <button class="icon-btn" onclick="put('🚩')">🚩</button>
+                <button class="delete-btn" onclick="put('')">BORRAR ❌</button>
+            </div>
+        </div>
     </div>
 
     <div id="victory-msg">
-        <h1 id="win-title" style="color: var(--accent); font-size: 3rem; margin: 0;">¡GOL!</h1>
-        <p id="win-desc" style="font-size: 1.5rem;">Punto acumulado.</p>
+        <h1 id="win-title" style="color: var(--accent); font-size: 4rem; margin: 0;">¡GOLAZO!</h1>
+        <p id="win-desc" style="font-size: 1.8rem;">Punto de examen conseguido.</p>
         <button class="btn-next" id="btn-action" onclick="nextLevel()">SIGUIENTE PARTIDO</button>
     </div>
 
@@ -93,7 +101,6 @@
         let selected = null;
         let currentLevelIndex = 0;
         let totalScore = 0;
-        const totalLevelsToPlay = 5;
         const icons = { 1:'⚽', 2:'🏆', 3:'👕', 4:'📣', 5:'🧤', 6:'🚩' };
 
         const niveles = [
@@ -140,43 +147,44 @@
         function validate() {
             const cells = Array.from(document.querySelectorAll('.cell'));
             let hasError = false;
-            let isComplete = true;
+            let filledCount = 0;
+
+            // Resetear errores
+            cells.forEach(c => c.classList.remove('error'));
 
             cells.forEach(cell => {
-                cell.classList.remove('error');
-                if (cell.innerText === "") isComplete = false;
                 const val = cell.innerText;
                 if (!val) return;
+                filledCount++;
+
                 const r = parseInt(cell.dataset.r);
                 const c = parseInt(cell.dataset.c);
+
                 cells.forEach(other => {
                     if (cell === other) return;
                     const or = parseInt(other.dataset.r);
                     const oc = parseInt(other.dataset.c);
+                    const bR = Math.floor(r / 2), bC = Math.floor(c / 3);
+                    const obR = Math.floor(or / 2), obC = Math.floor(oc / 3);
+
                     if (other.innerText === val) {
-                        if (or === r || oc === c) { cell.classList.add('error'); hasError = true; }
-                        const startR = Math.floor(r / 2) * 2;
-                        const startC = Math.floor(c / 3) * 3;
-                        if (or >= startR && or < startR + 2 && oc >= startC && oc < startC + 3) {
-                            cell.classList.add('error'); hasError = true;
+                        // REGLA: Fila, Columna o Bloque 2x3
+                        if (or === r || oc === c || (bR === obR && bC === obC)) {
+                            cell.classList.add('error');
+                            hasError = true;
                         }
                     }
                 });
             });
-            if (isComplete && !hasError) { totalScore++; showVictory(); }
-        }
 
-        function showVictory() {
-            document.getElementById('victory-msg').style.display = 'flex';
-            if (currentLevelIndex + 1 >= totalLevelsToPlay) {
-                document.getElementById('win-title').innerText = "🏆 FINAL";
-                document.getElementById('win-desc').innerText = `Calificación: ${totalScore}/5`;
-                document.getElementById('btn-action').innerText = "CERRAR";
+            if (filledCount === 36 && !hasError) {
+                totalScore++;
+                setTimeout(() => { document.getElementById('victory-msg').style.display = 'flex'; }, 300);
             }
         }
 
         function nextLevel() {
-            if (currentLevelIndex + 1 >= totalLevelsToPlay) { location.reload(); return; }
+            if (currentLevelIndex + 1 >= 5) { location.reload(); return; }
             currentLevelIndex++;
             document.getElementById('victory-msg').style.display = 'none';
             loadLevel();
