@@ -8,42 +8,52 @@
         :root { --field: #2e7d32; --accent: #ffeb3b; --text: #ffffff; }
         body { font-family: sans-serif; background: #0b1a0b; color: white; display: flex; flex-direction: column; align-items: center; padding: 0; margin: 0; }
         
-        /* Cabecera del Examen */
         .header-info { text-align: center; background: #000; width: 100%; padding: 15px 0; margin-bottom: 20px; border-bottom: 4px solid var(--accent); }
         #progress-text { font-size: 1.6rem; font-weight: bold; color: var(--accent); display: block; }
 
-        /* Contenedor del Tablero */
+        /* TABLERO */
         .grid { 
             display: grid; 
-            grid-template-columns: repeat(6, 52px); 
-            grid-template-rows: repeat(6, 52px); 
+            grid-template-columns: repeat(6, 50px); 
+            grid-template-rows: repeat(6, 50px); 
             background: #000; 
-            border: 6px solid #000; 
-            box-shadow: 0 0 25px rgba(0,0,0,0.7);
+            border: 6px solid #000; /* Borde exterior grueso */
         }
 
         .cell { 
-            width: 52px; height: 52px; 
+            width: 50px; height: 50px; 
             background: var(--field); 
             display: flex; align-items: center; justify-content: center; 
             font-size: 28px; cursor: pointer; 
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid rgba(0,0,0,0.3); /* Borde fino normal */
             box-sizing: border-box;
         }
 
-        /* REJILLA GRUESA - DIVISIONES DE BLOQUES */
-        /* Vertical: grueso tras la 3ra columna */
-        .cell:nth-child(3n) { border-right: 6px solid #000 !important; }
-        .cell:nth-child(6n) { border-right: none !important; }
-
-        /* Horizontal: grueso tras la 2da y 4ta fila */
-        .cell:nth-child(n+13):nth-child(-n+18), 
-        .cell:nth-child(n+25):nth-child(-n+30) { 
-            border-bottom: 6px solid #000 !important; 
+        /* --- REJILLA GRUESA CORREGIDA --- */
+        
+        /* Línea vertical gruesa en el medio (después de la columna 3) */
+        .cell:nth-child(3n) { 
+            border-right: 6px solid #000 !important; 
+        }
+        /* Quitar borde derecho a la última columna para que no se vea doble */
+        .cell:nth-child(6n) { 
+            border-right: none !important; 
         }
 
-        .selected { background: var(--accent) !important; color: #000; outline: 3px solid white; z-index: 5; }
-        .fixed { background: #1b5e20; cursor: default; filter: brightness(0.7); }
+        /* Líneas horizontales gruesas (después de fila 2 y fila 4) */
+        /* Celdas de la fila 2 (7 a 12) y fila 4 (19 a 24) */
+        .cell:nth-child(n+7):nth-child(-n+12),
+        .cell:nth-child(n+19):nth-child(-n+24),
+        .cell:nth-child(n+31):nth-child(-n+36) {
+            border-bottom: 6px solid #000 !important;
+        }
+        /* Quitar borde inferior a la última fila */
+        .cell:nth-child(n+31):nth-child(-n+36) {
+            border-bottom: none !important;
+        }
+
+        .selected { background: var(--accent) !important; color: #000; outline: 2px solid white; z-index: 5; }
+        .fixed { background: #1b5e20; cursor: default; filter: brightness(0.8); }
         .error { background: #d32f2f !important; }
 
         .toolbar { margin-top: 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
@@ -57,7 +67,7 @@
 
     <div class="header-info">
         <span id="progress-text">PARTIDO 1 DE 5</span>
-        <div style="font-size: 0.9rem; margin-top: 5px; color: #aaa;">Resuelve para calificar</div>
+        <div style="font-size: 0.9rem; margin-top: 5px; color: #aaa;">Completa las 6 áreas de 2x3</div>
     </div>
 
     <div class="grid" id="grid"></div>
@@ -161,7 +171,7 @@
             if (currentLevelIndex + 1 >= totalLevelsToPlay) {
                 document.getElementById('win-title').innerText = "🏆 FINAL";
                 document.getElementById('win-desc').innerText = `Calificación: ${totalScore}/5`;
-                document.getElementById('btn-action').innerText = "CERRAR EXAMEN";
+                document.getElementById('btn-action').innerText = "CERRAR";
             }
         }
 
