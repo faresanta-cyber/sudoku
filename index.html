@@ -2,44 +2,163 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Sudoku Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sudoku Football 6x6</title>
     <style>
-        body { background: #0f172a; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; }
-        .grid { display: grid; grid-template-columns: repeat(9, 40px); gap: 1px; background: #334155; border: 2px solid #334155; }
-        .cell { width: 40px; height: 40px; background: #1e293b; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 0.5px solid #334155; font-size: 20px; }
-        .fixed { color: #94a3b8; font-weight: bold; background: #111827; }
-        .selected { background: #38bdf8 !important; color: #0f172a; }
-        .error { color: #fb7185; }
+        :root {
+            --bg: #132a13;
+            --field: #2e7d32;
+            --accent: #ffeb3b;
+            --text: #ffffff;
+        }
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            display: flex; flex-direction: column; align-items: center; 
+            margin: 0; padding: 10px;
+        }
+        
+        /* Contenedor del Tablero */
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(6, 55px); 
+            grid-template-rows: repeat(6, 55px); 
+            gap: 2px; 
+            background: #000; 
+            border: 4px solid #000;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .cell { 
+            width: 55px; height: 55px; 
+            background: var(--field); 
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 30px; cursor: pointer; transition: 0.2s;
+            user-select: none;
+        }
+
+        /* Bordes de bloques 2x3 */
+        .cell:nth-child(3n) { border-right: 3px solid #000; }
+        .cell:nth-child(6n) { border-right: none; }
+        div:nth-child(n+13):nth-child(-n+18),
+        div:nth-child(n+25):nth-child(-n+30) { border-bottom: 3px solid #000; }
+
+        .cell:hover { background: #388e3c; }
+        .selected { background: var(--accent) !important; transform: scale(1.05); z-index: 10; }
+        .fixed { background: #1b5e20; cursor: default; filter: grayscale(0.5); }
+        .error { background: #d32f2f !important; }
+
+        /* Barra de herramientas */
+        .toolbar { 
+            margin-top: 20px; 
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+            background: rgba(0,0,0,0.3); padding: 15px; border-radius: 15px;
+        }
+        .icon-btn { 
+            font-size: 28px; width: 60px; height: 60px; border-radius: 10px;
+            border: none; background: white; cursor: pointer; transition: 0.2s;
+        }
+        .icon-btn:hover { transform: translateY(-5px); background: var(--accent); }
+        
+        .reset-btn {
+            margin-top: 15px; background: transparent; color: white; border: 1px solid white;
+            padding: 8px 15px; border-radius: 5px; cursor: pointer;
+        }
     </style>
 </head>
 <body>
-    <h1>SUDOKU PRO</h1>
+
+    <h2 style="margin-bottom:5px;">⚽ SUDOKU FOOTBALL 6x6</h2>
+    <p style="font-size: 0.8rem; opacity: 0.8;">Completa el campo sin repetir figuras</p>
+
     <div class="grid" id="grid"></div>
-    <p>Haz clic en un cuadro y usa tu teclado (1-9)</p>
+
+    <div class="toolbar">
+        <button class="icon-btn" onclick="put('⚽')">⚽</button>
+        <button class="icon-btn" onclick="put('🏆')">🏆</button>
+        <button class="icon-btn" onclick="put('👕')">👕</button>
+        <button class="icon-btn" onclick="put('📣')">📣</button>
+        <button class="icon-btn" onclick="put('🧤')">🧤</button>
+        <button class="icon-btn" onclick="put('🚩')">🚩</button>
+        <button class="icon-btn" style="grid-column: span 3; height: 40px; font-size: 16px;" onclick="put('')">BORRAR ❌</button>
+    </div>
+
+    <button class="reset-btn" onclick="location.reload()">Reiniciar Partido</button>
+
     <script>
-        const board = [
-            [5,3,0,0,7,0,0,0,0], [6,0,0,1,9,5,0,0,0], [0,9,8,0,0,0,0,6,0],
-            [8,0,0,0,6,0,0,0,3], [4,0,0,8,0,3,0,0,1], [7,0,0,0,2,0,0,0,6],
-            [0,6,0,0,0,0,2,8,0], [0,0,0,4,1,9,0,0,5], [0,0,0,0,8,0,0,7,9]
+        const grid = document.getElementById('grid');
+        let selected = null;
+
+        // Mapa de iconos: 1=Balon, 2=Copa, 3=Camiseta, 4=Megafono, 5=Guantes, 6=Banderin
+        const icons = { 1:'⚽', 2:'🏆', 3:'👕', 4:'📣', 5:'🧤', 6:'🚩' };
+
+        // Tablero inicial 6x6 (puedes cambiar los números para crear otros niveles)
+        const layout = [
+            [1, 0, 0, 0, 5, 0],
+            [0, 0, 6, 0, 0, 1],
+            [0, 1, 0, 2, 0, 0],
+            [0, 0, 4, 0, 1, 0],
+            [6, 0, 0, 3, 0, 0],
+            [0, 4, 0, 0, 0, 2]
         ];
-        let sel = null;
-        const g = document.getElementById('grid');
-        board.forEach((row, r) => {
-            row.forEach((val, c) => {
-                const div = document.createElement('div');
-                div.className = 'cell';
-                if (val !== 0) { div.innerText = val; div.classList.add('fixed'); }
-                else { div.onclick = () => { 
-                    document.querySelectorAll('.cell').forEach(x => x.classList.remove('selected'));
-                    sel = div; div.classList.add('selected');
-                };}
-                g.appendChild(div);
+
+        function createGrid() {
+            layout.forEach((row, r) => {
+                row.forEach((val, c) => {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.r = r;
+                    cell.dataset.c = c;
+                    
+                    if (val !== 0) {
+                        cell.innerText = icons[val];
+                        cell.classList.add('fixed');
+                    } else {
+                        cell.onclick = () => {
+                            document.querySelectorAll('.cell').forEach(cl => cl.classList.remove('selected'));
+                            selected = cell;
+                            cell.classList.add('selected');
+                        };
+                    }
+                    grid.appendChild(cell);
+                });
             });
-        });
-        document.addEventListener('keydown', (e) => {
-            if (!sel || isNaN(e.key) || e.key == 0) return;
-            sel.innerText = e.key;
-        });
+        }
+
+        function put(emoji) {
+            if (selected && !selected.classList.contains('fixed')) {
+                selected.innerText = emoji;
+                validate(selected, emoji);
+            }
+        }
+
+        function validate(cell, val) {
+            cell.classList.remove('error');
+            if (val === "") return;
+
+            const r = parseInt(cell.dataset.r);
+            const c = parseInt(cell.dataset.c);
+            const all = document.querySelectorAll('.cell');
+            let hasError = false;
+
+            all.forEach((other, i) => {
+                const or = Math.floor(i / 6);
+                const oc = i % 6;
+                if (other !== cell && other.innerText === val) {
+                    // Fila o Columna
+                    if (or === r || oc === c) hasError = true;
+                    // Bloque 2x3
+                    const startR = Math.floor(r / 2) * 2;
+                    const startC = Math.floor(c / 3) * 3;
+                    if (or >= startR && or < startR + 2 && oc >= startC && oc < startC + 3) hasError = true;
+                }
+            });
+            if (hasError) cell.classList.add('error');
+        }
+
+        createGrid();
     </script>
 </body>
 </html>
