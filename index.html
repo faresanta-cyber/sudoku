@@ -33,6 +33,8 @@
 
         #victory { position: fixed; inset: 0; background: rgba(0,0,0,0.98); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 2000; text-align: center; }
         #skip-btn { position: fixed; bottom: 10px; right: 10px; opacity: 0.1; background: gray; color: white; border: none; padding: 5px; cursor: pointer; font-size: 10px; }
+        
+        .timer-result { font-size: 2rem; color: white; margin: 10px 0 30px 0; background: rgba(255,255,255,0.1); padding: 10px 30px; border-radius: 20px; border: 1px solid var(--gold); }
     </style>
 </head>
 <body>
@@ -44,7 +46,7 @@
         <div class="instrucciones">
             <h2 style="color: var(--gold); margin-bottom: 15px;">INDICACIONES</h2>
             <p>• Completa el tablero con las 9 figuras deportivas.</p>
-            <p>• Regla: No repetir figuras en la misma fila, columna o bloque 3x3.</p>
+            <p>• El cronómetro registrará tu tiempo de juego.</p>
         </div>
         <button class="btn-start" onclick="iniciar()">¡ENTRAR AL DESAFÍO!</button>
     </div>
@@ -73,8 +75,8 @@
     </div>
 
     <div id="victory">
-        <h1 id="win-text" style="color: var(--gold); font-size: 3.5rem; margin-bottom: 10px;">¡PARTIDO GANADO!</h1>
-        <p id="time-res" style="font-size: 1.8rem; color: white; margin-bottom: 30px;"></p>
+        <h1 id="win-text" style="color: var(--gold); font-size: 3.5rem; margin-bottom: 10px;">¡DESAFÍO COMPLETADO!</h1>
+        <div class="timer-result">TIEMPO REGISTRADO: <span id="final-time-display">00:00</span></div>
         <button class="btn-start" onclick="siguiente()">SIGUIENTE PARTIDO</button>
     </div>
 
@@ -83,25 +85,27 @@
         let selected = null, lvl = 0, time = 0, interval = null;
         const icons = { 1:'⚽', 2:'🏆', 3:'👕', 4:'📣', 5:'🧤', 6:'🚩', 7:'👟', 8:'⏱️', 9:'🎫' };
 
+        // Niveles (Partido 4 basado en tu imagen image_8cd51e.png)
         const levels = [
             [[5,3,0,0,7,0,0,0,0],[6,0,0,1,9,5,0,0,0],[0,9,8,0,0,0,0,6,0],[8,0,0,0,6,0,0,0,3],[4,0,0,8,0,3,0,0,1],[7,0,0,0,2,0,0,0,6],[0,6,0,0,0,0,2,8,0],[0,0,0,4,1,9,0,0,5],[0,0,0,0,8,0,0,7,9]],
             [[0,0,0,2,6,0,7,0,1],[6,8,0,0,7,0,0,9,0],[1,9,0,0,0,4,5,0,0],[8,2,0,1,0,0,0,4,0],[0,0,4,6,0,2,9,0,0],[0,5,0,0,0,3,0,2,8],[0,0,9,3,0,0,0,7,4],[0,4,0,0,5,0,0,3,6],[7,0,3,0,1,8,0,0,0]],
             [[1,0,0,4,8,9,0,0,6],[7,3,0,0,0,0,0,4,0],[0,0,0,0,0,1,2,9,5],[0,0,7,1,2,0,6,0,0],[5,0,0,7,0,3,0,0,8],[0,0,6,0,9,5,7,0,0],[9,1,4,6,0,0,0,0,0],[0,2,0,0,0,0,0,3,7],[8,0,0,5,1,2,0,0,4]],
-            // NIVEL 4: POSICIONES EXACTAS DE TU IMAGEN CON TUS FIGURAS
-            [[1,2,3,4,0,5,0,0,6],
-             [0,0,6,1,0,0,0,0,0],
-             [0,7,0,0,0,8,0,4,0],
-             [0,0,0,9,0,7,0,0,4],
-             [7,0,0,0,4,0,0,0,1],
-             [9,0,0,8,0,2,0,0,0],
-             [0,6,0,7,0,0,0,2,0],
-             [0,0,0,0,0,9,4,0,0],
-             [8,0,0,3,0,4,6,1,7]],
+            // NIVEL 4: POSICIONES EXACTAS DE LA IMAGEN DE REFERENCIA
+            [[1,2,3,4,0,5,0,0,6],[0,0,6,1,0,0,0,0,0],[0,7,0,0,0,8,0,4,0],[0,0,0,9,0,7,0,0,4],[7,0,0,0,4,0,0,0,1],[9,0,0,8,0,2,0,0,0],[0,6,0,7,0,0,0,2,0],[0,0,0,0,0,9,4,0,0],[8,0,0,3,0,4,6,1,7]],
             [[0,2,0,0,3,0,0,9,0],[6,0,9,0,0,0,4,0,3],[0,4,0,0,0,0,0,1,0],[0,0,0,7,0,3,0,0,0],[5,0,0,0,6,0,0,0,1],[0,0,0,9,0,2,0,0,0],[0,6,0,0,0,0,0,2,0],[9,0,2,0,0,0,5,0,8],[0,5,0,0,4,0,0,7,0]]
         ];
 
         function iniciar() { document.getElementById('portada').style.display = 'none'; dibujar(); startTimer(); }
-        function startTimer() { time = 0; clearInterval(interval); interval = setInterval(() => { time++; let m = Math.floor(time/60), s = time%60; document.getElementById('timer').innerText = `${m<10?'0':''}${m}:${s<10?'0':''}${s}`; }, 1000); }
+        
+        function startTimer() { 
+            time = 0; 
+            clearInterval(interval); 
+            interval = setInterval(() => { 
+                time++; 
+                let m = Math.floor(time/60), s = time%60; 
+                document.getElementById('timer').innerText = `${m<10?'0':''}${m}:${s<10?'0':''}${s}`; 
+            }, 1000); 
+        }
 
         function dibujar() {
             grid.innerHTML = '';
@@ -134,8 +138,10 @@
                 });
             });
             if(empty === 0 && mistakes === 0) {
+                const currentTime = document.getElementById('timer').innerText;
                 clearInterval(interval);
                 document.getElementById('win-text').innerText = `¡DESAFÍO ${lvl + 1} / 5 COMPLETADO!`;
+                document.getElementById('final-time-display').innerText = currentTime; // Aquí se pasa el tiempo al cartel
                 document.getElementById('victory').style.display = 'flex';
             }
         }
