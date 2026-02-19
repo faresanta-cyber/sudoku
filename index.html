@@ -2,13 +2,18 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>SUDOKU FOOTBALL - EXAMEN CONTROLADO</title>
+    <title>SUDOKU TÁCTICO - ACTIVIDAD DEPORTIVA</title>
     <style>
         :root { --field: #1b5e20; --gold: #ffd700; --border: #000; }
         body { font-family: 'Arial Black', sans-serif; background: #0a1f0a; color: white; display: flex; flex-direction: column; align-items: center; margin: 0; }
         
-        #portada { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .btn-start { background: #2e7d32; color: white; padding: 15px 40px; font-size: 1.4rem; border-radius: 50px; cursor: pointer; border: none; border-bottom: 5px solid #1b5e20; }
+        /* PORTADA CON INDICACIONES */
+        #portada { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
+        .instrucciones { background: rgba(255,255,255,0.1); padding: 30px; border-radius: 20px; border: 2px solid var(--gold); max-width: 600px; margin-bottom: 20px; }
+        .instrucciones h2 { color: var(--gold); margin-top: 0; }
+        .instrucciones ul { text-align: left; font-family: 'Arial', sans-serif; line-height: 1.6; }
+        
+        .btn-start { background: #2e7d32; color: white; padding: 15px 45px; font-size: 1.4rem; border-radius: 50px; cursor: pointer; border: none; border-bottom: 5px solid #1b5e20; }
 
         .header { background: #000; width: 100%; padding: 10px; text-align: center; border-bottom: 5px solid var(--gold); }
         #timer { font-size: 2rem; color: var(--gold); border: 2px solid var(--gold); padding: 5px 20px; border-radius: 30px; display: inline-block; font-family: monospace; background: #111; }
@@ -32,18 +37,25 @@
         .del-btn { grid-column: span 3; padding: 10px; background: #c62828; color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 5px; }
 
         #victory { position: fixed; inset: 0; background: rgba(0,0,0,0.98); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 2000; }
-        
-        /* BOTÓN SECRETO PARA EL PROFESOR */
-        #skip-btn { position: fixed; bottom: 10px; right: 10px; opacity: 0.3; background: gray; color: white; border: none; padding: 5px; cursor: pointer; font-size: 10px; }
+        #skip-btn { position: fixed; bottom: 10px; right: 10px; opacity: 0.2; background: gray; color: white; border: none; padding: 5px; cursor: pointer; font-size: 10px; }
     </style>
 </head>
 <body>
 
-    <button id="skip-btn" onclick="siguiente()">SALTAR NIVEL (SOLO PROFESOR)</button>
+    <button id="skip-btn" onclick="siguiente()">SALTAR NIVEL</button>
 
     <div id="portada">
-        <h1 style="color: var(--gold); font-size: 2.5rem;">SUDOKU FOOTBALL</h1>
-        <button class="btn-start" onclick="iniciar()">EMPEZAR EXAMEN</button>
+        <h1 style="color: var(--gold); font-size: 2.5rem; margin-bottom: 10px;">SUDOKU TÁCTICO</h1>
+        <div class="instrucciones">
+            <h2>INSTRUCCIONES DE LA ACTIVIDAD</h2>
+            <ul>
+                <li>Completa el tablero utilizando las 9 figuras deportivas.</li>
+                <li><b>Regla de Oro:</b> No se puede repetir la misma figura en una misma fila, columna o bloque de 3x3 (marcados por líneas gruesas).</li>
+                <li>Selecciona una casilla vacía y luego pulsa la figura que desees colocar.</li>
+                <li>Si una casilla se pone <b>roja</b>, ¡hay un conflicto táctico! Revisa tu estrategia.</li>
+            </ul>
+        </div>
+        <button class="btn-start" onclick="iniciar()">¡ENTRAR A LA CANCHA!</button>
     </div>
 
     <div class="header">
@@ -64,13 +76,13 @@
                 <button class="icon-btn" onclick="put('👟')">👟</button>
                 <button class="icon-btn" onclick="put('⏱️')">⏱️</button>
                 <button class="icon-btn" onclick="put('🎫')">🎫</button>
-                <button class="del-btn" onclick="put('')">BORRAR</button>
+                <button class="del-btn" onclick="put('')">BORRAR SELECCIÓN</button>
             </div>
         </div>
     </div>
 
     <div id="victory">
-        <h1 id="win-text" style="color: var(--gold); font-size: 2.5rem;">¡COMPLETADO!</h1>
+        <h1 id="win-text" style="color: var(--gold); font-size: 2.5rem;">¡PARTIDO GANADO!</h1>
         <p id="time-res" style="font-size: 1.5rem; color: white;"></p>
         <button class="btn-start" onclick="siguiente()">SIGUIENTE PARTIDO</button>
     </div>
@@ -80,14 +92,13 @@
         let selected = null, lvl = 0, time = 0, interval = null;
         const icons = { 1:'⚽', 2:'🏆', 3:'👕', 4:'📣', 5:'🧤', 6:'🚩', 7:'👟', 8:'⏱️', 9:'🎫' };
 
-        // Sudokus reales con solución garantizada
         const levels = [
             [[5,3,0,0,7,0,0,0,0],[6,0,0,1,9,5,0,0,0],[0,9,8,0,0,0,0,6,0],[8,0,0,0,6,0,0,0,3],[4,0,0,8,0,3,0,0,1],[7,0,0,0,2,0,0,0,6],[0,6,0,0,0,0,2,8,0],[0,0,0,4,1,9,0,0,5],[0,0,0,0,8,0,0,7,9]],
             [[0,0,0,2,6,0,7,0,1],[6,8,0,0,7,0,0,9,0],[1,9,0,0,0,4,5,0,0],[8,2,0,1,0,0,0,4,0],[0,0,4,6,0,2,9,0,0],[0,5,0,0,0,3,0,2,8],[0,0,9,3,0,0,0,7,4],[0,4,0,0,5,0,0,3,6],[7,0,3,0,1,8,0,0,0]],
             [[1,0,0,4,8,9,0,0,6],[7,3,0,0,0,0,0,4,0],[0,0,0,0,0,1,2,9,5],[0,0,7,1,2,0,6,0,0],[5,0,0,7,0,3,0,0,8],[0,0,6,0,9,5,7,0,0],[9,1,4,6,0,0,0,0,0],[0,2,0,0,0,0,0,3,7],[8,0,0,5,1,2,0,0,4]],
-            // PARTIDO 4 - MATRIZ DE SUDOKU PROFESIONAL (NIVEL MEDIO)
+            // NIVEL 4: MATRIZ PROFESIONAL VALIDADA
             [[0,0,0,0,0,0,2,0,0],[0,8,0,0,0,7,0,9,0],[6,0,2,0,0,0,5,0,0],[0,7,0,0,6,0,0,0,0],[0,0,0,9,0,1,0,0,0],[0,0,0,0,2,0,0,4,0],[0,0,5,0,0,0,6,0,3],[0,9,0,4,0,0,0,7,0],[0,0,6,0,0,0,0,0,0]],
-            // PARTIDO 5 - FINAL
+            // NIVEL 5: FINAL
             [[0,0,0,6,0,0,4,0,0],[7,0,0,0,0,3,6,0,0],[0,0,0,0,9,1,0,8,0],[0,5,0,1,8,0,0,0,3],[0,0,0,3,0,6,0,4,5],[0,4,0,2,0,0,0,6,0],[9,0,3,0,0,0,0,0,0],[0,2,0,0,0,0,1,0,0],[0,0,0,0,0,0,0,0,0]]
         ];
 
@@ -140,14 +151,14 @@
 
             if(vacio === 0 && error === 0) {
                 clearInterval(interval);
-                document.getElementById('time-res').innerText = "TIEMPO: " + document.getElementById('timer').innerText;
+                document.getElementById('time-res').innerText = "TIEMPO REGISTRADO: " + document.getElementById('timer').innerText;
                 document.getElementById('victory').style.display = 'flex';
             }
         }
 
         function siguiente() {
             if(lvl < 4) { lvl++; document.getElementById('victory').style.display = 'none'; dibujar(); startTimer(); }
-            else { alert("¡EXAMEN FINALIZADO!"); location.reload(); }
+            else { alert("¡ACTIVIDAD COMPLETADA CON ÉXITO!"); location.reload(); }
         }
     </script>
 </body>
