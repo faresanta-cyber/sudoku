@@ -3,80 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SUDOKU TÁCTICO - EVIDENCIA DE PARTIDO</title>
+    <title>SUDOKU TÁCTICO - REJILLA RESTAURADA</title>
     <style>
-        :root { --pasto: #1b5e20; --oro: #ffd700; --fondo: #0a1a0a; }
+        :root { --pasto: #1b5e20; --oro: #ffd700; --fondo: #0a1a0a; --linea: #000000; }
         body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: var(--fondo); color: white; margin: 0; 
-            display: flex; flex-direction: column; align-items: center; min-height: 100vh;
+            font-family: 'Arial', sans-serif; background-color: var(--fondo); 
+            color: white; margin: 0; display: flex; flex-direction: column; align-items: center; 
         }
 
         /* PORTADA */
         #portada {
-            position: fixed; inset: 0; background: #000; z-index: 9999;
+            position: fixed; inset: 0; background: #000; z-index: 10000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
-        .intro-box { 
-            border: 5px solid var(--oro); padding: 50px; border-radius: 30px; text-align: center;
-            background: linear-gradient(145deg, #0f2e0f, #000);
-        }
+        .intro-box { border: 5px solid var(--oro); padding: 40px; border-radius: 20px; text-align: center; background: #0a1f0a; }
 
         /* HEADER */
-        .header { width: 100%; background: #000; padding: 20px; text-align: center; border-bottom: 4px solid var(--oro); }
-        #timer { font-size: 2.5rem; background: #c62828; padding: 5px 20px; border-radius: 10px; font-family: monospace; border: 2px solid white; }
+        .header { width: 100%; background: #000; padding: 15px; text-align: center; border-bottom: 4px solid var(--oro); }
+        #timer { font-size: 2rem; background: #c62828; padding: 5px 15px; border-radius: 8px; border: 2px solid #fff; font-family: monospace; }
 
-        /* AREA DE JUEGO */
+        /* TABLERO CON REJILLA GRUESA */
         .container { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; padding: 20px; }
         .grid { 
             display: grid; grid-template-columns: repeat(9, 60px); grid-template-rows: repeat(9, 60px); 
-            background: #000; border: 10px solid #000;
+            background: var(--linea); border: 10px solid var(--linea); /* Borde exterior grueso */
         }
         .cell { 
             width: 60px; height: 60px; background: var(--pasto); display: flex; align-items: center; 
             justify-content: center; font-size: 32px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); 
         }
-        .cell:nth-child(3n) { border-right: 5px solid #000; }
-        .cell:nth-child(9n) { border-right: none; }
-        .cell:nth-child(n+19):nth-child(-n+27), .cell:nth-child(n+46):nth-child(-n+54) { border-bottom: 5px solid #000; }
+
+        /* LÍNEAS GRUESAS DIVISORIAS (LA REJILLA) */
+        .cell:nth-child(3n) { border-right: 6px solid var(--linea); } /* Línea vertical cada 3 */
+        .cell:nth-child(9n) { border-right: none; } /* Quitar borde al final de la fila */
+        .cell:nth-child(n+19):nth-child(-n+27), 
+        .cell:nth-child(n+46):nth-child(-n+54) { border-bottom: 6px solid var(--linea); } /* Línea horizontal cada 3 */
 
         .selected { background: var(--oro) !important; color: black; }
         .fixed { background: #0e3511; cursor: default; filter: brightness(0.7); }
         .error { background: #ff4444 !important; }
 
-        /* BOTONES */
-        .sidebar { background: #111; padding: 20px; border-radius: 20px; border: 2px solid var(--oro); }
+        /* PANEL FIGURAS */
+        .sidebar { background: #111; padding: 20px; border-radius: 15px; border: 2px solid var(--oro); }
         .btn-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .icon-btn { font-size: 35px; width: 85px; height: 85px; border-radius: 12px; cursor: pointer; background: white; border: none; }
-        .btn-principal { 
-            background: var(--oro); color: black; border: none; padding: 20px 40px; 
-            font-size: 1.5rem; font-weight: bold; border-radius: 10px; cursor: pointer; margin-top: 20px;
-        }
+        .icon-btn { font-size: 35px; width: 80px; height: 80px; border-radius: 10px; cursor: pointer; background: white; border: none; }
+        .btn-borrar { grid-column: span 3; background: #ff4444; color: white; padding: 12px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; }
 
-        /* MODAL DE EVIDENCIA */
+        /* MODAL EVIDENCIA */
         #modal-evidencia { 
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); 
-            z-index: 10000; flex-direction: column; align-items: center; justify-content: center; 
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); 
+            z-index: 11000; flex-direction: column; align-items: center; justify-content: center; 
         }
-        .evidencia-card { 
-            background: white; color: black; padding: 40px; border-radius: 20px; 
-            border: 8px solid var(--oro); text-align: center; width: 80%; max-width: 400px;
-        }
-        .evidencia-data { font-size: 1.8rem; border: 3px dashed #333; margin: 20px 0; padding: 20px; }
+        .card { background: white; color: black; padding: 30px; border-radius: 20px; text-align: center; border: 6px solid var(--oro); width: 320px; }
     </style>
 </head>
 <body>
 
     <div id="portada">
         <div class="intro-box">
-            <h1 style="color:var(--oro); font-size: 3rem; margin:0;">SUDOKU FOOTBALL</h1>
-            <p>Estrategia y Dirección Técnica</p>
-            <button class="btn-principal" onclick="empezar()">INICIAR ACTIVIDAD</button>
+            <h1 style="color:var(--oro); margin:0;">SUDOKU FOOTBALL</h1>
+            <p>Organización Táctica de Equipos</p>
+            <button onclick="empezar()" style="padding:15px 30px; font-size:1.2rem; cursor:pointer; background:var(--oro); border:none; border-radius:10px; font-weight:bold;">INICIAR ACTIVIDAD</button>
         </div>
     </div>
 
     <div class="header">
-        <span id="label-nivel" style="font-size: 2rem; margin-right: 30px; color: var(--oro);">PARTIDO 1 / 5</span>
+        <span id="label-nivel" style="font-size:1.5rem; margin-right:20px; color:var(--oro);">PARTIDO 1 / 5</span>
         <span id="timer">00:00</span>
     </div>
 
@@ -93,29 +85,27 @@
                 <button class="icon-btn" onclick="poner('👟')">👟</button>
                 <button class="icon-btn" onclick="poner('⏱️')">⏱️</button>
                 <button class="icon-btn" onclick="poner('🎫')">🎫</button>
-                <button class="icon-btn" onclick="poner('')" style="grid-column: span 3; background:#ff4444; color:white; font-size:1.2rem;">BORRAR ❌</button>
+                <button class="btn-borrar" onclick="poner('')">BORRAR ❌</button>
             </div>
         </div>
     </div>
 
     <div id="modal-evidencia">
-        <div class="evidencia-card">
-            <h1 style="color:var(--pasto); margin:0;">¡GOL!</h1>
-            <p>Estrategia Táctica Correcta</p>
-            <div class="evidencia-data">
-                <div id="res-partido" style="color:#c62828; font-weight:bold;">PARTIDO 1 de 5</div>
-                <div id="res-tiempo">TIEMPO: 00:00</div>
+        <div class="card">
+            <h1 style="color:#1b5e20; margin:0;">¡GOL!</h1>
+            <div style="font-size:1.4rem; margin:20px 0; border: 2px dashed #000; padding:10px;">
+                <div id="res-partido">PARTIDO 1</div>
+                <div id="res-tiempo" style="font-weight:bold;">TIEMPO: 00:00</div>
             </div>
-            <p style="font-size: 0.9rem; color: #555;">Toma captura de pantalla como evidencia.</p>
-            <button class="btn-principal" id="btn-accion" onclick="siguiente()" style="width:100%">SIGUIENTE PARTIDO</button>
+            <button onclick="siguiente()" style="width:100%; padding:15px; background:#1b5e20; color:white; border:none; border-radius:10px; cursor:pointer; font-size:1.1rem;">SIGUIENTE PARTIDO</button>
         </div>
     </div>
 
     <script>
-        let casillaSeleccionada = null, nivelActual = 0, segundos = 0, relojIntervalo = null;
-        const figuras = { 1:'⚽', 2:'🏆', 3:'👕', 4:'📣', 5:'🧤', 6:'🚩', 7:'👟', 8:'⏱️', 9:'🎫' };
+        let sel = null, lvl = 0, secs = 0, timer = null;
+        const figs = { 1:'⚽', 2:'🏆', 3:'👕', 4:'📣', 5:'🧤', 6:'🚩', 7:'👟', 8:'⏱️', 9:'🎫' };
         
-        const niveles = [
+        const puzzles = [
             [[5,3,0,0,7,0,0,0,0],[6,0,0,1,9,5,0,0,0],[0,9,8,0,0,0,0,6,0],[8,0,0,0,6,0,0,0,3],[4,0,0,8,0,3,0,0,1],[7,0,0,0,2,0,0,0,6],[0,6,0,0,0,0,2,8,0],[0,0,0,4,1,9,0,0,5],[0,0,0,0,8,0,0,7,9]],
             [[0,0,0,2,6,0,7,0,1],[6,8,0,0,7,0,0,9,0],[1,9,0,0,0,4,5,0,0],[8,2,0,1,0,0,0,4,0],[0,0,4,6,0,2,9,0,0],[0,5,0,0,0,3,0,2,8],[0,0,9,3,0,0,0,7,4],[0,4,0,0,5,0,0,3,6],[7,0,3,0,1,8,0,0,0]],
             [[1,0,0,4,8,9,0,0,6],[7,3,0,0,0,0,0,4,0],[0,0,0,0,0,1,2,9,5],[0,0,7,1,2,0,6,0,0],[5,0,0,7,0,3,0,0,8],[0,0,6,0,9,5,7,0,0],[9,1,4,6,0,0,0,0,0],[0,2,0,0,0,0,0,3,7],[8,0,0,5,1,2,0,0,4]],
@@ -125,90 +115,75 @@
 
         function empezar() {
             document.getElementById('portada').style.display = 'none';
-            generarTablero();
-            iniciarReloj();
+            draw();
+            clock();
         }
 
-        function generarTablero() {
+        function draw() {
             const grid = document.getElementById('tablero');
             grid.innerHTML = '';
-            document.getElementById('label-nivel').innerText = `PARTIDO ${nivelActual + 1} / 5`;
+            document.getElementById('label-nivel').innerText = `PARTIDO ${lvl + 1} / 5`;
             
-            niveles[nivelActual].forEach((fila, r) => {
-                fila.forEach((valor, c) => {
-                    const celda = document.createElement('div');
-                    celda.className = 'cell';
-                    celda.dataset.r = r; celda.dataset.c = c;
-                    
-                    if(valor !== 0) {
-                        celda.innerText = figuras[valor];
-                        celda.classList.add('fixed');
+            puzzles[lvl].forEach((row, r) => {
+                row.forEach((v, c) => {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.r = r; cell.dataset.c = c;
+                    if(v !== 0) {
+                        cell.innerText = figs[v];
+                        cell.classList.add('fixed');
                     } else {
-                        celda.onclick = () => {
-                            document.querySelectorAll('.cell').forEach(c => c.classList.remove('selected'));
-                            celda.classList.add('selected');
-                            casillaSeleccionada = celda;
+                        cell.onclick = () => {
+                            document.querySelectorAll('.cell').forEach(x => x.classList.remove('selected'));
+                            cell.classList.add('selected');
+                            sel = cell;
                         };
                     }
-                    grid.appendChild(celda);
+                    grid.appendChild(cell);
                 });
             });
         }
 
-        function poner(emoji) {
-            if(casillaSeleccionada && !casillaSeleccionada.classList.contains('fixed')) {
-                casillaSeleccionada.innerText = emoji;
-                validar();
+        function poner(e) {
+            if(sel && !sel.classList.contains('fixed')) {
+                sel.innerText = e;
+                validate();
             }
         }
 
-        function iniciarReloj() {
-            segundos = 0; clearInterval(relojIntervalo);
-            relojIntervalo = setInterval(() => {
-                segundos++;
-                let m = Math.floor(segundos/60), s = segundos%60;
+        function clock() {
+            secs = 0; clearInterval(timer);
+            timer = setInterval(() => {
+                secs++;
+                let m = Math.floor(secs/60), s = secs%60;
                 document.getElementById('timer').innerText = `${m<10?'0':''}${m}:${s<10?'0':''}${s}`;
             }, 1000);
         }
 
-        function validar() {
-            const celdas = Array.from(document.querySelectorAll('.cell'));
-            celdas.forEach(c => c.classList.remove('error'));
-            let errores = 0, llenas = 0;
+        function validate() {
+            const cells = Array.from(document.querySelectorAll('.cell'));
+            cells.forEach(c => c.classList.remove('error'));
+            let err = 0, full = 0;
 
-            celdas.forEach(c1 => {
-                const val = c1.innerText;
-                if(!val) return;
-                llenas++;
-                
-                celdas.forEach(c2 => {
-                    if(c1 === c2 || c2.innerText !== val) return;
+            cells.forEach(c1 => {
+                if(!c1.innerText) return;
+                full++;
+                cells.forEach(c2 => {
+                    if(c1 === c2 || c1.innerText !== c2.innerText) return;
                     const r1 = c1.dataset.r, c1c = c1.dataset.c, r2 = c2.dataset.r, c2c = c2.dataset.c;
                     const b1 = `${Math.floor(r1/3)}-${Math.floor(c1c/3)}`, b2 = `${Math.floor(r2/3)}-${Math.floor(c2c/3)}`;
-                    
-                    if(r1 === r2 || c1c === c2c || b1 === b2) {
-                        c1.classList.add('error'); errores++;
-                    }
+                    if(r1 === r2 || c1c === c2c || b1 === b2) { c1.classList.add('error'); err++; }
                 });
             });
 
-            if(llenas === 81 && errores === 0) {
-                clearInterval(relojIntervalo);
-                document.getElementById('res-partido').innerText = `PARTIDO ${nivelActual + 1} de 5`;
+            if(full === 81 && err === 0) {
+                clearInterval(timer);
+                document.getElementById('res-partido').innerText = `PARTIDO ${lvl + 1} de 5`;
                 document.getElementById('res-tiempo').innerText = `TIEMPO: ${document.getElementById('timer').innerText}`;
-                if(nivelActual >= 4) document.getElementById('btn-accion').innerText = "TERMINAR ACTIVIDAD";
                 document.getElementById('modal-evidencia').style.display = 'flex';
             }
         }
 
         function siguiente() {
-            if(nivelActual >= 4) { location.reload(); }
-            else {
-                nivelActual++;
-                document.getElementById('modal-evidencia').style.display = 'none';
-                generarTablero(); iniciarReloj();
-            }
-        }
-    </script>
-</body>
-</html>
+            lvl++;
+            if(lvl >= 5) { location.reload(); }
