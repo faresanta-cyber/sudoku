@@ -2,92 +2,60 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SUDOKU TÁCTICO - EVIDENCIA FINAL</title>
+    <title>SUDOKU TÁCTICO - EXAMEN FINAL</title>
     <style>
-        :root { --accent: #ffeb3b; --field: #1b5e20; --border: #000000; --gold: #ffd700; }
-        body { 
-            font-family: 'Arial Black', sans-serif; 
-            background: #0a1f0a url('https://www.transparenttextures.com/patterns/grass.png');
-            color: white; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh;
-        }
-
-        /* PORTADA */
-        #portada {
-            position: fixed; inset: 0; background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)), url('https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1350&q=80');
-            background-size: cover; background-position: center; z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
-        }
-        .logo-box { padding: 40px; border: 5px solid var(--gold); border-radius: 20px; background: rgba(0,0,0,0.95); }
-
-        /* HEADER */
-        .header { background: rgba(0,0,0,0.95); width: 100%; padding: 15px; text-align: center; border-bottom: 5px solid var(--gold); }
-        .stats-bar { display: flex; justify-content: center; gap: 40px; align-items: center; }
-        #timer { font-size: 2.2rem; color: var(--gold); background: #111; padding: 5px 25px; border-radius: 50px; border: 2px solid var(--gold); font-family: 'Courier New', monospace; }
-        #progress-text { font-size: 1.8rem; }
-
-        /* TABLERO CON LÍNEAS GRUESAS RECUPERADAS */
-        .game-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; padding: 20px; }
-        .grid { 
-            display: grid; 
-            grid-template-columns: repeat(9, 55px); 
-            grid-template-rows: repeat(9, 55px); 
-            background: var(--border); 
-            border: 6px solid var(--border); /* Borde exterior grueso */
-        }
-        .cell { 
-            width: 55px; height: 55px; 
-            background: var(--field); 
-            display: flex; align-items: center; justify-content: center; 
-            font-size: 30px; cursor: pointer; 
-            border: 1px solid rgba(255,255,255,0.2); 
-            box-sizing: border-box;
-        }
-
-        /* LÍNEAS GRUESAS DE LOS BLOQUES 3X3 */
-        .cell:nth-child(3n) { border-right: 5px solid var(--border); } /* Línea gruesa vertical */
-        .cell:nth-child(9n) { border-right: 1px solid rgba(255,255,255,0.2); } /* Reset borde derecho final */
+        :root { --field: #1b5e20; --gold: #ffd700; --border: #000; }
+        body { font-family: 'Arial Black', sans-serif; background: #0a1f0a; color: white; display: flex; flex-direction: column; align-items: center; margin: 0; }
         
-        /* Línea gruesa horizontal después de las filas 3 y 6 */
-        .cell:nth-child(n+19):nth-child(-n+27), 
-        .cell:nth-child(n+46):nth-child(-n+54) { 
-            border-bottom: 5px solid var(--border); 
-        }
+        #portada { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .btn-start { background: #2e7d32; color: white; padding: 20px 45px; font-size: 1.5rem; border-radius: 50px; cursor: pointer; border: none; border-bottom: 5px solid #1b5e20; transition: 0.2s; }
+        .btn-start:active { transform: translateY(3px); border-bottom-width: 2px; }
 
-        .selected { background: var(--gold) !important; color: black; }
-        .fixed { background: #0e3511; cursor: default; opacity: 0.7; }
-        .error { background: #d32f2f !important; }
+        .header { background: #000; width: 100%; padding: 15px; text-align: center; border-bottom: 5px solid var(--gold); }
+        #timer { font-size: 2.2rem; color: var(--gold); border: 2px solid var(--gold); padding: 5px 25px; border-radius: 40px; display: inline-block; margin-top: 10px; font-family: 'Courier New', monospace; background: #111; }
 
-        /* ICONOS */
-        .sidebar { background: rgba(0,0,0,0.85); padding: 20px; border-radius: 15px; border: 2px solid var(--gold); }
-        .icon-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .icon-btn { font-size: 32px; width: 75px; height: 75px; border-radius: 12px; border: none; background: white; cursor: pointer; }
-        .delete-btn { grid-column: span 3; padding: 12px; background: #c62828; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        .game-container { display: flex; gap: 30px; padding: 20px; flex-wrap: wrap; justify-content: center; align-items: flex-start; }
+        .grid { display: grid; grid-template-columns: repeat(9, 55px); grid-template-rows: repeat(9, 55px); background: var(--border); border: 6px solid var(--border); box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .cell { width: 55px; height: 55px; background: var(--field); display: flex; align-items: center; justify-content: center; font-size: 32px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); box-sizing: border-box; }
 
-        /* MENSAJE VICTORIA */
-        #victory-msg { position: fixed; inset: 0; background: rgba(0,0,0,0.98); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 3000; text-align: center; }
-        .btn-main { background: #2e7d32; color: white; border: none; padding: 18px 45px; font-size: 1.4rem; border-radius: 40px; cursor: pointer; margin-top: 20px; border-bottom: 4px solid #1b5e20; }
+        /* REJILLA GRUESA 3x3 */
+        .cell:nth-child(3n) { border-right: 5px solid var(--border); }
+        .cell:nth-child(9n) { border-right: 1px solid rgba(255,255,255,0.1); }
+        .cell:nth-child(n+19):nth-child(-n+27), .cell:nth-child(n+46):nth-child(-n+54) { border-bottom: 5px solid var(--border); }
+
+        .selected { background: var(--gold) !important; color: black; border: 2px solid white !important; }
+        .fixed { background: #0d3b0f; cursor: default; opacity: 0.8; }
+        .error { background: #d32f2f !important; animation: shake 0.3s; }
+
+        .sidebar { background: rgba(0,0,0,0.85); padding: 25px; border-radius: 20px; border: 3px solid var(--gold); }
+        .icon-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .icon-btn { font-size: 35px; width: 75px; height: 75px; border-radius: 12px; border: none; background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .del-btn { grid-column: span 3; padding: 15px; background: #c62828; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1rem; margin-top: 10px; }
+
+        #victory { position: fixed; inset: 0; background: rgba(0,0,0,0.98); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 2000; text-align: center; }
+
+        @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(5px); } 50% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
     </style>
 </head>
 <body>
 
     <div id="portada">
-        <div class="logo-box">
-            <h1 style="color: var(--gold); font-size: 3rem; margin: 0;">SUDOKU FOOTBALL</h1>
-            <p>EVALUACIÓN DE ESTRATEGIA TÁCTICA</p>
-            <button class="btn-main" onclick="iniciar()">INICIAR EXAMEN</button>
+        <div style="background: rgba(0,0,0,0.8); padding: 50px; border-radius: 30px; border: 4px solid var(--gold);">
+            <h1 style="color: var(--gold); font-size: 3.5rem; margin: 0;">SUDOKU FOOTBALL</h1>
+            <p style="font-size: 1.2rem; letter-spacing: 3px; margin-bottom: 30px;">MODO EXAMEN TÁCTICO</p>
+            <button class="btn-start" onclick="iniciar()">INICIAR CRONÓMETRO</button>
         </div>
     </div>
 
     <div class="header">
-        <div class="stats-bar">
-            <div id="progress-text">PARTIDO 1 / 5</div>
-            <div id="timer">00:00</div>
-        </div>
+        <h2 id="progreso" style="margin: 0; letter-spacing: 2px;">EVIDENCIA 1 / 5</h2>
+        <div id="timer">00:00</div>
     </div>
 
     <div class="game-container">
         <div id="grid" class="grid"></div>
         <div class="sidebar">
+            <h3 style="text-align: center; color: var(--gold); margin-top: 0;">FIGURAS</h3>
             <div class="icon-grid">
                 <button class="icon-btn" onclick="put('⚽')">⚽</button>
                 <button class="icon-btn" onclick="put('🏆')">🏆</button>
@@ -98,102 +66,98 @@
                 <button class="icon-btn" onclick="put('👟')">👟</button>
                 <button class="icon-btn" onclick="put('⏱️')">⏱️</button>
                 <button class="icon-btn" onclick="put('🎫')">🎫</button>
-                <button class="delete-btn" onclick="put('')">BORRAR SELECCIÓN</button>
+                <button class="del-btn" onclick="put('')">BORRAR SELECCIÓN</button>
             </div>
         </div>
     </div>
 
-    <div id="victory-msg">
-        <h1 id="msg-lvl" style="color: var(--gold); font-size: 3.2rem; margin: 0;">PARTIDO 1 / 5 COMPLETADO</h1>
-        <p id="final-time" style="font-size: 1.8rem; margin: 20px 0; color: white;"></p>
-        <button class="btn-main" onclick="siguiente()">SIGUIENTE PARTIDO</button>
+    <div id="victory">
+        <h1 id="win-text" style="color: var(--gold); font-size: 3.5rem; margin: 0;">EVIDENCIA 1 / 5 COMPLETADA</h1>
+        <p id="time-res" style="font-size: 2rem; margin: 25px; color: white;"></p>
+        <button class="btn-start" onclick="siguiente()">SIGUIENTE DESAFÍO</button>
     </div>
 
     <script>
         const grid = document.getElementById('grid');
-        let selected = null, currentLvl = 0, time = 0, timerActive = false;
+        let selected = null, lvl = 0, time = 0, interval = null;
         const icons = { 1:'⚽', 2:'🏆', 3:'👕', 4:'📣', 5:'🧤', 6:'🚩', 7:'👟', 8:'⏱️', 9:'🎫' };
 
         const levels = [
             [[5,3,0,0,7,0,0,0,0],[6,0,0,1,9,5,0,0,0],[0,9,8,0,0,0,0,6,0],[8,0,0,0,6,0,0,0,3],[4,0,0,8,0,3,0,0,1],[7,0,0,0,2,0,0,0,6],[0,6,0,0,0,0,2,8,0],[0,0,0,4,1,9,0,0,5],[0,0,0,0,8,0,0,7,9]],
             [[0,0,0,2,6,0,7,0,1],[6,8,0,0,7,0,0,9,0],[1,9,0,0,0,4,5,0,0],[8,2,0,1,0,0,0,4,0],[0,0,4,6,0,2,9,0,0],[0,5,0,0,0,3,0,2,8],[0,0,9,3,0,0,0,7,4],[0,4,0,0,5,0,0,3,6],[7,0,3,0,1,8,0,0,0]],
             [[1,0,0,4,8,9,0,0,6],[7,3,0,0,0,0,0,4,0],[0,0,0,0,0,1,2,9,5],[0,0,7,1,2,0,6,0,0],[5,0,0,7,0,3,0,0,8],[0,0,6,0,9,5,7,0,0],[9,1,4,6,0,0,0,0,0],[0,2,0,0,0,0,0,3,7],[8,0,0,5,1,2,0,0,4]],
-            // NIVEL 4: DISTRIBUCIÓN LÓGICA VERIFICADA
-            [[0,0,0,0,0,0,0,0,2],[0,8,0,4,0,0,0,9,0],[6,0,0,0,2,0,5,0,0],[0,7,0,0,0,3,0,0,0],[0,0,9,0,0,0,2,0,0],[0,0,0,5,0,0,0,7,0],[0,0,1,0,4,0,0,0,3],[0,4,0,0,0,7,0,1,0],[9,0,0,0,0,0,0,0,0]],
-            // NIVEL 5
-            [[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,3,0,8,5],[0,0,1,0,2,0,0,0,0],[0,0,0,5,0,7,0,0,0],[0,0,4,0,0,0,1,0,0],[0,9,0,0,0,0,0,0,0],[5,0,0,0,0,0,0,7,3],[0,0,2,0,1,0,0,0,0],[0,0,0,0,4,0,0,0,9]]
+            // NIVEL 4: REDISEÑADO PARA SER FÁCIL Y CON SOLUCIÓN GARANTIZADA
+            [[0,0,0,2,6,0,7,0,1],[6,8,0,0,7,0,0,9,0],[1,9,0,0,0,4,5,0,0],[8,2,0,1,0,0,0,4,0],[0,0,4,6,0,2,9,0,0],[0,5,0,0,0,3,0,2,8],[0,0,9,3,0,0,0,7,4],[0,4,0,0,5,0,0,3,6],[7,0,3,0,0,1,8,0,0]],
+            // NIVEL 5: DESAFÍO FINAL
+            [[0,2,0,0,3,0,0,9,0],[6,0,9,0,0,0,4,0,3],[0,4,0,0,0,0,0,1,0],[0,0,0,7,0,3,0,0,0],[5,0,0,0,6,0,0,0,1],[0,0,0,9,0,2,0,0,0],[0,6,0,0,0,0,0,2,0],[9,0,2,0,0,0,5,0,8],[0,5,0,0,4,0,0,7,0]]
         ];
 
         function iniciar() {
             document.getElementById('portada').style.display = 'none';
-            generar();
-            if(!timerActive) {
-                setInterval(() => {
-                    time++;
-                    let m = Math.floor(time/60), s = time%60;
-                    document.getElementById('timer').innerText = `${m<10?'0':''}${m}:${s<10?'0':''}${s}`;
-                }, 1000);
-                timerActive = true;
-            }
+            dibujar();
+            startTimer();
         }
 
-        function generar() {
+        function startTimer() {
+            time = 0;
+            clearInterval(interval);
+            document.getElementById('timer').innerText = "00:00";
+            interval = setInterval(() => {
+                time++;
+                let m = Math.floor(time/60), s = time%60;
+                document.getElementById('timer').innerText = `${m<10?'0':''}${m}:${s<10?'0':''}${s}`;
+            }, 1000);
+        }
+
+        function dibujar() {
             grid.innerHTML = '';
-            document.getElementById('progress-text').innerText = `PARTIDO ${currentLvl + 1} / 5`;
-            levels[currentLvl].forEach((row, r) => {
-                row.forEach((val, c) => {
-                    const div = document.createElement('div');
-                    div.className = 'cell';
-                    if(val) { div.innerText = icons[val]; div.classList.add('fixed'); }
-                    else {
-                        div.onclick = () => {
-                            document.querySelectorAll('.cell').forEach(x => x.classList.remove('selected'));
-                            div.classList.add('selected'); selected = div;
-                        };
-                    }
-                    div.dataset.r = r; div.dataset.c = c;
-                    grid.appendChild(div);
+            document.getElementById('progreso').innerText = `EVIDENCIA ${lvl + 1} / 5`;
+            levels[lvl].forEach((fila, r) => {
+                fila.forEach((v, c) => {
+                    const d = document.createElement('div');
+                    d.className = 'cell';
+                    if(v) { d.innerText = icons[v]; d.classList.add('fixed'); }
+                    else { d.onclick = () => { document.querySelectorAll('.cell').forEach(x => x.classList.remove('selected')); d.classList.add('selected'); selected = d; }; }
+                    d.dataset.r = r; d.dataset.c = c;
+                    grid.appendChild(d);
                 });
             });
         }
 
-        function put(emoji) {
-            if(selected && !selected.classList.contains('fixed')) {
-                selected.innerText = emoji;
-                validar();
-            }
-        }
+        function put(e) { if(selected && !selected.classList.contains('fixed')) { selected.innerText = e; validar(); } }
 
         function validar() {
-            const cells = Array.from(document.querySelectorAll('.cell'));
-            cells.forEach(x => x.classList.remove('error'));
-            let empty = 0, errors = 0;
+            const cs = Array.from(document.querySelectorAll('.cell'));
+            cs.forEach(x => x.classList.remove('error'));
+            let vacio = 0, error = 0;
 
-            cells.forEach(c1 => {
-                if(!c1.innerText) { empty++; return; }
-                const r1 = c1.dataset.r, col1 = c1.dataset.c, b1 = Math.floor(r1/3)+"-"+Math.floor(col1/3);
-                cells.forEach(c2 => {
+            cs.forEach(c1 => {
+                if(!c1.innerText) { vacio++; return; }
+                const r1 = parseInt(c1.dataset.r), col1 = parseInt(c1.dataset.c), b1 = Math.floor(r1/3)+"-"+Math.floor(col1/3);
+                cs.forEach(c2 => {
                     if(c1 === c2 || c1.innerText !== c2.innerText) return;
-                    const r2 = c2.dataset.r, col2 = c2.dataset.c, b2 = Math.floor(r2/3)+"-"+Math.floor(col2/3);
-                    if(r1 === r2 || col1 === col2 || b1 === b2) { c1.classList.add('error'); errors++; }
+                    const r2 = parseInt(c2.dataset.r), col2 = parseInt(c2.dataset.c), b2 = Math.floor(r2/3)+"-"+Math.floor(col2/3);
+                    if(r1 === r2 || col1 === col2 || b1 === b2) { c1.classList.add('error'); error++; }
                 });
             });
 
-            if(empty === 0 && errors === 0) {
-                document.getElementById('msg-lvl').innerText = `PARTIDO ${currentLvl + 1} / 5 COMPLETADO`;
-                document.getElementById('final-time').innerText = "TIEMPO REGISTRADO: " + document.getElementById('timer').innerText;
-                document.getElementById('victory-msg').style.display = 'flex';
+            if(vacio === 0 && error === 0) {
+                clearInterval(interval);
+                document.getElementById('win-text').innerText = `EVIDENCIA ${lvl + 1} / 5 COMPLETADA`;
+                document.getElementById('time-res').innerText = "TIEMPO: " + document.getElementById('timer').innerText;
+                document.getElementById('victory').style.display = 'flex';
             }
         }
 
         function siguiente() {
-            if(currentLvl < 4) {
-                currentLvl++;
-                document.getElementById('victory-msg').style.display = 'none';
-                generar();
-            } else {
-                alert("¡EXAMEN FINALIZADO EXITOSAMENTE!");
-                location.reload();
+            if(lvl < 4) { 
+                lvl++; 
+                document.getElementById('victory').style.display = 'none'; 
+                dibujar(); 
+                startTimer(); 
+            } else { 
+                alert("¡EXAMEN COMPLETADO CON ÉXITO!"); 
+                location.reload(); 
             }
         }
     </script>
