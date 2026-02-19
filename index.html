@@ -7,9 +7,12 @@
         :root { --field: #1b5e20; --gold: #ffd700; --border: #000; }
         body { font-family: 'Arial Black', sans-serif; background: #0a1f0a; color: white; display: flex; flex-direction: column; align-items: center; margin: 0; }
         
+        /* PORTADA CON INSTRUCCIONES DETALLADAS */
         #portada { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
-        .instrucciones { background: rgba(255,255,255,0.05); padding: 25px; border-radius: 20px; border: 2px solid var(--gold); max-width: 500px; margin-bottom: 20px; font-family: 'Arial', sans-serif; }
-        .btn-start { background: #2e7d32; color: white; padding: 15px 45px; font-size: 1.4rem; border-radius: 50px; cursor: pointer; border: none; border-bottom: 5px solid #1b5e20; font-weight: bold; }
+        .instrucciones { background: rgba(255,255,255,0.05); padding: 30px; border-radius: 20px; border: 2px solid var(--gold); max-width: 550px; margin-bottom: 25px; text-align: left; }
+        .instrucciones p { font-family: 'Arial', sans-serif; font-size: 1.1rem; line-height: 1.6; margin: 10px 0; }
+        .btn-start { background: #2e7d32; color: white; padding: 18px 50px; font-size: 1.5rem; border-radius: 50px; cursor: pointer; border: none; border-bottom: 5px solid #1b5e20; font-weight: bold; transition: 0.2s; }
+        .btn-start:active { transform: translateY(3px); border-bottom-width: 2px; }
 
         .header { background: #000; width: 100%; padding: 10px; text-align: center; border-bottom: 5px solid var(--gold); }
         #timer { font-size: 2rem; color: var(--gold); border: 2px solid var(--gold); padding: 5px 20px; border-radius: 30px; display: inline-block; font-family: monospace; background: #111; }
@@ -32,23 +35,21 @@
         .del-btn { grid-column: span 3; padding: 12px; background: #c62828; color: white; border: none; border-radius: 8px; cursor: pointer; margin-top: 10px; font-weight: bold; }
 
         #victory { position: fixed; inset: 0; background: rgba(0,0,0,0.98); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 2000; text-align: center; }
-        #skip-btn { position: fixed; bottom: 10px; right: 10px; opacity: 0.1; background: gray; color: white; border: none; padding: 5px; cursor: pointer; font-size: 10px; }
-        
-        .timer-result { font-size: 2rem; color: white; margin: 10px 0 30px 0; background: rgba(255,255,255,0.1); padding: 10px 30px; border-radius: 20px; border: 1px solid var(--gold); }
+        .timer-result { font-size: 2rem; color: white; margin: 15px 0 35px 0; background: rgba(255,255,255,0.1); padding: 15px 40px; border-radius: 20px; border: 1px solid var(--gold); }
     </style>
 </head>
 <body>
 
-    <button id="skip-btn" onclick="siguiente()">SALTAR</button>
-
     <div id="portada">
         <h1 style="color: var(--gold); font-size: 3rem; margin-bottom: 10px;">SUDOKU TÁCTICO</h1>
         <div class="instrucciones">
-            <h2 style="color: var(--gold); margin-bottom: 15px;">INDICACIONES</h2>
-            <p>• Completa el tablero con las 9 figuras deportivas.</p>
-            <p>• El cronómetro registrará tu tiempo de juego.</p>
+            <h2 style="color: var(--gold); margin-top:0; text-align:center;">¿CÓMO JUGAR?</h2>
+            <p>1. <b>Selecciona</b> una casilla vacía en el campo de juego.</p>
+            <p>2. <b>Elige</b> una de las 9 figuras tácticas del panel derecho.</p>
+            <p>3. <b>REGLA DE ORO:</b> No puedes repetir la misma figura en una fila, columna o cuadro de 3x3.</p>
+            <p>4. <b>Atención:</b> Si cometes una falta técnica, la casilla se pondrá roja.</p>
         </div>
-        <button class="btn-start" onclick="iniciar()">¡ENTRAR AL DESAFÍO!</button>
+        <button class="btn-start" onclick="iniciar()">¡COMENZAR PARTIDO!</button>
     </div>
 
     <div class="header">
@@ -69,13 +70,13 @@
                 <button class="icon-btn" onclick="put('👟')">👟</button>
                 <button class="icon-btn" onclick="put('⏱️')">⏱️</button>
                 <button class="icon-btn" onclick="put('🎫')">🎫</button>
-                <button class="del-btn" onclick="put('')">BORRAR</button>
+                <button class="del-btn" onclick="put('')">BORRAR SELECCIÓN</button>
             </div>
         </div>
     </div>
 
     <div id="victory">
-        <h1 id="win-text" style="color: var(--gold); font-size: 3.5rem; margin-bottom: 10px;">¡DESAFÍO COMPLETADO!</h1>
+        <h1 id="win-text" style="color: var(--gold); font-size: 3.5rem; margin-bottom: 10px;">¡PARTIDO GANADO!</h1>
         <div class="timer-result">TIEMPO REGISTRADO: <span id="final-time-display">00:00</span></div>
         <button class="btn-start" onclick="siguiente()">SIGUIENTE PARTIDO</button>
     </div>
@@ -85,27 +86,17 @@
         let selected = null, lvl = 0, time = 0, interval = null;
         const icons = { 1:'⚽', 2:'🏆', 3:'👕', 4:'📣', 5:'🧤', 6:'🚩', 7:'👟', 8:'⏱️', 9:'🎫' };
 
-        // Niveles (Partido 4 basado en tu imagen image_8cd51e.png)
         const levels = [
             [[5,3,0,0,7,0,0,0,0],[6,0,0,1,9,5,0,0,0],[0,9,8,0,0,0,0,6,0],[8,0,0,0,6,0,0,0,3],[4,0,0,8,0,3,0,0,1],[7,0,0,0,2,0,0,0,6],[0,6,0,0,0,0,2,8,0],[0,0,0,4,1,9,0,0,5],[0,0,0,0,8,0,0,7,9]],
             [[0,0,0,2,6,0,7,0,1],[6,8,0,0,7,0,0,9,0],[1,9,0,0,0,4,5,0,0],[8,2,0,1,0,0,0,4,0],[0,0,4,6,0,2,9,0,0],[0,5,0,0,0,3,0,2,8],[0,0,9,3,0,0,0,7,4],[0,4,0,0,5,0,0,3,6],[7,0,3,0,1,8,0,0,0]],
             [[1,0,0,4,8,9,0,0,6],[7,3,0,0,0,0,0,4,0],[0,0,0,0,0,1,2,9,5],[0,0,7,1,2,0,6,0,0],[5,0,0,7,0,3,0,0,8],[0,0,6,0,9,5,7,0,0],[9,1,4,6,0,0,0,0,0],[0,2,0,0,0,0,0,3,7],[8,0,0,5,1,2,0,0,4]],
-            // NIVEL 4: POSICIONES EXACTAS DE LA IMAGEN DE REFERENCIA
+            // PARTIDO 4: POSICIONES EXACTAS DE LA IMAGEN DE REFERENCIA
             [[1,2,3,4,0,5,0,0,6],[0,0,6,1,0,0,0,0,0],[0,7,0,0,0,8,0,4,0],[0,0,0,9,0,7,0,0,4],[7,0,0,0,4,0,0,0,1],[9,0,0,8,0,2,0,0,0],[0,6,0,7,0,0,0,2,0],[0,0,0,0,0,9,4,0,0],[8,0,0,3,0,4,6,1,7]],
             [[0,2,0,0,3,0,0,9,0],[6,0,9,0,0,0,4,0,3],[0,4,0,0,0,0,0,1,0],[0,0,0,7,0,3,0,0,0],[5,0,0,0,6,0,0,0,1],[0,0,0,9,0,2,0,0,0],[0,6,0,0,0,0,0,2,0],[9,0,2,0,0,0,5,0,8],[0,5,0,0,4,0,0,7,0]]
         ];
 
         function iniciar() { document.getElementById('portada').style.display = 'none'; dibujar(); startTimer(); }
-        
-        function startTimer() { 
-            time = 0; 
-            clearInterval(interval); 
-            interval = setInterval(() => { 
-                time++; 
-                let m = Math.floor(time/60), s = time%60; 
-                document.getElementById('timer').innerText = `${m<10?'0':''}${m}:${s<10?'0':''}${s}`; 
-            }, 1000); 
-        }
+        function startTimer() { time = 0; clearInterval(interval); interval = setInterval(() => { time++; let m = Math.floor(time/60), s = time%60; document.getElementById('timer').innerText = `${m<10?'0':''}${m}:${s<10?'0':''}${s}`; }, 1000); }
 
         function dibujar() {
             grid.innerHTML = '';
@@ -138,15 +129,15 @@
                 });
             });
             if(empty === 0 && mistakes === 0) {
-                const currentTime = document.getElementById('timer').innerText;
+                const finalTime = document.getElementById('timer').innerText;
                 clearInterval(interval);
                 document.getElementById('win-text').innerText = `¡DESAFÍO ${lvl + 1} / 5 COMPLETADO!`;
-                document.getElementById('final-time-display').innerText = currentTime; // Aquí se pasa el tiempo al cartel
+                document.getElementById('final-time-display').innerText = finalTime;
                 document.getElementById('victory').style.display = 'flex';
             }
         }
 
-        function siguiente() { if(lvl < 4) { lvl++; document.getElementById('victory').style.display = 'none'; dibujar(); startTimer(); } else { alert("¡TORNEO COMPLETADO!"); location.reload(); } }
+        function siguiente() { if(lvl < 4) { lvl++; document.getElementById('victory').style.display = 'none'; dibujar(); startTimer(); } else { alert("¡TORNEO COMPLETADO CON ÉXITO!"); location.reload(); } }
     </script>
 </body>
 </html>
