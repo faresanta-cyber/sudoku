@@ -2,39 +2,36 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>SUDOKU TÁCTICO - ACTIVIDAD DEPORTIVA</title>
+    <title>SUDOKU TÁCTICO - VERSIÓN FINAL</title>
     <style>
         :root { --field: #1b5e20; --gold: #ffd700; --border: #000; }
         body { font-family: 'Arial Black', sans-serif; background: #0a1f0a; color: white; display: flex; flex-direction: column; align-items: center; margin: 0; }
         
-        #portada { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
-        .instrucciones { background: rgba(255,255,255,0.1); padding: 30px; border-radius: 20px; border: 2px solid var(--gold); max-width: 600px; margin-bottom: 20px; }
-        .instrucciones h2 { color: var(--gold); margin-top: 0; }
-        .instrucciones ul { text-align: left; font-family: 'Arial', sans-serif; line-height: 1.6; }
-        
-        .btn-start { background: #2e7d32; color: white; padding: 15px 45px; font-size: 1.4rem; border-radius: 50px; cursor: pointer; border: none; border-bottom: 5px solid #1b5e20; }
+        #portada { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
+        .instrucciones { background: rgba(255,255,255,0.05); padding: 25px; border-radius: 20px; border: 2px solid var(--gold); max-width: 500px; margin-bottom: 20px; font-family: 'Arial', sans-serif; }
+        .btn-start { background: #2e7d32; color: white; padding: 15px 45px; font-size: 1.4rem; border-radius: 50px; cursor: pointer; border: none; border-bottom: 5px solid #1b5e20; font-weight: bold; }
 
         .header { background: #000; width: 100%; padding: 10px; text-align: center; border-bottom: 5px solid var(--gold); }
         #timer { font-size: 2rem; color: var(--gold); border: 2px solid var(--gold); padding: 5px 20px; border-radius: 30px; display: inline-block; font-family: monospace; background: #111; }
 
-        .game-container { display: flex; gap: 20px; padding: 20px; flex-wrap: wrap; justify-content: center; }
-        .grid { display: grid; grid-template-columns: repeat(9, 50px); grid-template-rows: repeat(9, 50px); background: var(--border); border: 6px solid var(--border); }
-        .cell { width: 50px; height: 50px; background: var(--field); display: flex; align-items: center; justify-content: center; font-size: 28px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); box-sizing: border-box; }
+        .game-container { display: flex; gap: 25px; padding: 20px; flex-wrap: wrap; justify-content: center; }
+        .grid { display: grid; grid-template-columns: repeat(9, 52px); grid-template-rows: repeat(9, 52px); background: var(--border); border: 5px solid var(--border); }
+        .cell { width: 52px; height: 52px; background: var(--field); display: flex; align-items: center; justify-content: center; font-size: 30px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); box-sizing: border-box; }
 
-        .cell:nth-child(3n) { border-right: 5px solid var(--border); }
+        .cell:nth-child(3n) { border-right: 4px solid var(--border); }
         .cell:nth-child(9n) { border-right: 1px solid rgba(255,255,255,0.1); }
-        .cell:nth-child(n+19):nth-child(-n+27), .cell:nth-child(n+46):nth-child(-n+54) { border-bottom: 5px solid var(--border); }
+        .cell:nth-child(n+19):nth-child(-n+27), .cell:nth-child(n+46):nth-child(-n+54) { border-bottom: 4px solid var(--border); }
 
         .selected { background: var(--gold) !important; color: black; }
-        .fixed { background: #0d3b0f; cursor: default; opacity: 0.8; }
+        .fixed { background: #0d3b0f; cursor: default; opacity: 0.9; }
         .error { background: #d32f2f !important; }
 
-        .sidebar { background: rgba(0,0,0,0.85); padding: 15px; border-radius: 15px; border: 2px solid var(--gold); }
-        .icon-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-        .icon-btn { font-size: 30px; width: 65px; height: 65px; border-radius: 10px; border: none; background: white; cursor: pointer; }
-        .del-btn { grid-column: span 3; padding: 10px; background: #c62828; color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 5px; }
+        .sidebar { background: rgba(0,0,0,0.85); padding: 20px; border-radius: 15px; border: 3px solid var(--gold); }
+        .icon-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .icon-btn { font-size: 32px; width: 65px; height: 65px; border-radius: 10px; border: none; background: white; cursor: pointer; }
+        .del-btn { grid-column: span 3; padding: 12px; background: #c62828; color: white; border: none; border-radius: 8px; cursor: pointer; margin-top: 10px; font-weight: bold; }
 
-        #victory { position: fixed; inset: 0; background: rgba(0,0,0,0.98); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 2000; }
+        #victory { position: fixed; inset: 0; background: rgba(0,0,0,0.98); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 2000; text-align: center; }
         #skip-btn { position: fixed; bottom: 10px; right: 10px; opacity: 0.1; background: gray; color: white; border: none; padding: 5px; cursor: pointer; font-size: 10px; }
     </style>
 </head>
@@ -43,17 +40,13 @@
     <button id="skip-btn" onclick="siguiente()">SALTAR</button>
 
     <div id="portada">
-        <h1 style="color: var(--gold); font-size: 2.5rem; margin-bottom: 10px;">SUDOKU TÁCTICO</h1>
+        <h1 style="color: var(--gold); font-size: 3rem; margin-bottom: 10px;">SUDOKU TÁCTICO</h1>
         <div class="instrucciones">
-            <h2>INSTRUCCIONES DE LA ACTIVIDAD</h2>
-            <ul>
-                <li>Completa el tablero utilizando las 9 figuras deportivas.</li>
-                <li><b>Regla de Oro:</b> No se puede repetir la misma figura en una misma fila, columna o bloque de 3x3.</li>
-                <li>Si una casilla se pone <b>roja</b>, hay un error.</li>
-                <li>Supera los 5 desafíos para ganar.</li>
-            </ul>
+            <h2 style="color: var(--gold); margin-bottom: 15px;">INDICACIONES</h2>
+            <p>• Completa el tablero con las 9 figuras deportivas.</p>
+            <p>• Regla: No repetir figuras en la misma fila, columna o bloque 3x3.</p>
         </div>
-        <button class="btn-start" onclick="iniciar()">¡ENTRAR A LA CANCHA!</button>
+        <button class="btn-start" onclick="iniciar()">¡ENTRAR AL DESAFÍO!</button>
     </div>
 
     <div class="header">
@@ -74,14 +67,14 @@
                 <button class="icon-btn" onclick="put('👟')">👟</button>
                 <button class="icon-btn" onclick="put('⏱️')">⏱️</button>
                 <button class="icon-btn" onclick="put('🎫')">🎫</button>
-                <button class="del-btn" onclick="put('')">BORRAR SELECCIÓN</button>
+                <button class="del-btn" onclick="put('')">BORRAR</button>
             </div>
         </div>
     </div>
 
     <div id="victory">
-        <h1 id="win-text" style="color: var(--gold); font-size: 2.5rem; margin-bottom: 10px;">¡COMPLETADO!</h1>
-        <p id="time-res" style="font-size: 1.5rem; color: white; margin-bottom: 20px;"></p>
+        <h1 id="win-text" style="color: var(--gold); font-size: 3.5rem; margin-bottom: 10px;">¡PARTIDO GANADO!</h1>
+        <p id="time-res" style="font-size: 1.8rem; color: white; margin-bottom: 30px;"></p>
         <button class="btn-start" onclick="siguiente()">SIGUIENTE PARTIDO</button>
     </div>
 
@@ -94,24 +87,21 @@
             [[5,3,0,0,7,0,0,0,0],[6,0,0,1,9,5,0,0,0],[0,9,8,0,0,0,0,6,0],[8,0,0,0,6,0,0,0,3],[4,0,0,8,0,3,0,0,1],[7,0,0,0,2,0,0,0,6],[0,6,0,0,0,0,2,8,0],[0,0,0,4,1,9,0,0,5],[0,0,0,0,8,0,0,7,9]],
             [[0,0,0,2,6,0,7,0,1],[6,8,0,0,7,0,0,9,0],[1,9,0,0,0,4,5,0,0],[8,2,0,1,0,0,0,4,0],[0,0,4,6,0,2,9,0,0],[0,5,0,0,0,3,0,2,8],[0,0,9,3,0,0,0,7,4],[0,4,0,0,5,0,0,3,6],[7,0,3,0,1,8,0,0,0]],
             [[1,0,0,4,8,9,0,0,6],[7,3,0,0,0,0,0,4,0],[0,0,0,0,0,1,2,9,5],[0,0,7,1,2,0,6,0,0],[5,0,0,7,0,3,0,0,8],[0,0,6,0,9,5,7,0,0],[9,1,4,6,0,0,0,0,0],[0,2,0,0,0,0,0,3,7],[8,0,0,5,1,2,0,0,4]],
-            [[0,0,0,0,0,0,2,0,0],[0,8,0,0,0,7,0,9,0],[6,0,2,0,0,0,5,0,0],[0,7,0,0,6,0,0,0,0],[0,0,0,9,0,1,0,0,0],[0,0,0,0,2,0,0,4,0],[0,0,5,0,0,0,6,0,3],[0,9,0,4,0,0,0,7,0],[0,0,6,0,0,0,0,0,0]],
-            [[0,0,0,6,0,0,4,0,0],[7,0,0,0,0,3,6,0,0],[0,0,0,0,9,1,0,8,0],[0,5,0,1,8,0,0,0,3],[0,0,0,3,0,6,0,4,5],[0,4,0,2,0,0,0,6,0],[9,0,3,0,0,0,0,0,0],[0,2,0,0,0,0,1,0,0],[0,0,0,0,0,0,0,0,0]]
+            // NIVEL 4: POSICIONES EXACTAS DE TU IMAGEN CON TUS FIGURAS
+            [[1,2,3,4,0,5,0,0,6],
+             [0,0,6,1,0,0,0,0,0],
+             [0,7,0,0,0,8,0,4,0],
+             [0,0,0,9,0,7,0,0,4],
+             [7,0,0,0,4,0,0,0,1],
+             [9,0,0,8,0,2,0,0,0],
+             [0,6,0,7,0,0,0,2,0],
+             [0,0,0,0,0,9,4,0,0],
+             [8,0,0,3,0,4,6,1,7]],
+            [[0,2,0,0,3,0,0,9,0],[6,0,9,0,0,0,4,0,3],[0,4,0,0,0,0,0,1,0],[0,0,0,7,0,3,0,0,0],[5,0,0,0,6,0,0,0,1],[0,0,0,9,0,2,0,0,0],[0,6,0,0,0,0,0,2,0],[9,0,2,0,0,0,5,0,8],[0,5,0,0,4,0,0,7,0]]
         ];
 
-        function iniciar() {
-            document.getElementById('portada').style.display = 'none';
-            dibujar();
-            startTimer();
-        }
-
-        function startTimer() {
-            time = 0; clearInterval(interval);
-            interval = setInterval(() => {
-                time++;
-                let m = Math.floor(time/60), s = time%60;
-                document.getElementById('timer').innerText = `${m<10?'0':''}${m}:${s<10?'0':''}${s}`;
-            }, 1000);
-        }
+        function iniciar() { document.getElementById('portada').style.display = 'none'; dibujar(); startTimer(); }
+        function startTimer() { time = 0; clearInterval(interval); interval = setInterval(() => { time++; let m = Math.floor(time/60), s = time%60; document.getElementById('timer').innerText = `${m<10?'0':''}${m}:${s<10?'0':''}${s}`; }, 1000); }
 
         function dibujar() {
             grid.innerHTML = '';
@@ -119,9 +109,9 @@
             levels[lvl].forEach((fila, r) => {
                 fila.forEach((v, c) => {
                     const d = document.createElement('div');
-                    d.className = 'cell';
-                    if(v) { d.innerText = icons[v]; d.classList.add('fixed'); }
-                    else { d.onclick = () => { document.querySelectorAll('.cell').forEach(x => x.classList.remove('selected')); d.classList.add('selected'); selected = d; }; }
+                    d.className = 'cell' + (v?' fixed':'');
+                    if(v) d.innerText = icons[v];
+                    else d.onclick = () => { document.querySelectorAll('.cell').forEach(x => x.classList.remove('selected')); d.classList.add('selected'); selected = d; };
                     d.dataset.r = r; d.dataset.c = c;
                     grid.appendChild(d);
                 });
@@ -131,40 +121,26 @@
         function put(e) { if(selected && !selected.classList.contains('fixed')) { selected.innerText = e; validar(); } }
 
         function validar() {
-            const cs = Array.from(document.querySelectorAll('.cell'));
-            cs.forEach(x => x.classList.remove('error'));
-            let vacio = 0, error = 0;
-
-            cs.forEach(c1 => {
-                if(!c1.innerText) { vacio++; return; }
+            const cells = Array.from(document.querySelectorAll('.cell'));
+            cells.forEach(c => c.classList.remove('error'));
+            let empty = 0, mistakes = 0;
+            cells.forEach(c1 => {
+                if(!c1.innerText) { empty++; return; }
                 const r1 = parseInt(c1.dataset.r), col1 = parseInt(c1.dataset.c), b1 = Math.floor(r1/3)+"-"+Math.floor(col1/3);
-                cs.forEach(c2 => {
+                cells.forEach(c2 => {
                     if(c1 === c2 || c1.innerText !== c2.innerText) return;
                     const r2 = parseInt(c2.dataset.r), col2 = parseInt(c2.dataset.c), b2 = Math.floor(r2/3)+"-"+Math.floor(col2/3);
-                    if(r1 === r2 || col1 === col2 || b1 === b2) { c1.classList.add('error'); error++; }
+                    if(r1 === r2 || col1 === col2 || b1 === b2) { c1.classList.add('error'); mistakes++; }
                 });
             });
-
-            if(vacio === 0 && error === 0) {
+            if(empty === 0 && mistakes === 0) {
                 clearInterval(interval);
-                // ESTO ES LO QUE ARREGLÉ:
                 document.getElementById('win-text').innerText = `¡DESAFÍO ${lvl + 1} / 5 COMPLETADO!`;
-                document.getElementById('time-res').innerText = "TIEMPO REGISTRADO: " + document.getElementById('timer').innerText;
                 document.getElementById('victory').style.display = 'flex';
             }
         }
 
-        function siguiente() {
-            if(lvl < 4) { 
-                lvl++; 
-                document.getElementById('victory').style.display = 'none'; 
-                dibujar(); 
-                startTimer(); 
-            } else { 
-                alert("¡FELICIDADES! HAS GANADO EL TORNEO."); 
-                location.reload(); 
-            }
-        }
+        function siguiente() { if(lvl < 4) { lvl++; document.getElementById('victory').style.display = 'none'; dibujar(); startTimer(); } else { alert("¡TORNEO COMPLETADO!"); location.reload(); } }
     </script>
 </body>
 </html>
