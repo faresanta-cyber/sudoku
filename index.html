@@ -2,92 +2,144 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SUDOKU TÁCTICO - VERSIÓN FINAL EXAMEN</title>
+    <title>SUDOKU FOOTBALL - EXAMEN FINAL</title>
     <style>
-        :root { --accent: #ffeb3b; --field: #1b5e20; --border: #000000; --gold: #ffd700; }
-        body { 
-            font-family: 'Arial Black', sans-serif; 
-            background: #0a1f0a url('https://www.transparenttextures.com/patterns/grass.png');
-            color: white; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh;
-        }
-
-        .header { background: rgba(0,0,0,0.9); width: 100%; padding: 15px; text-align: center; border-bottom: 6px solid var(--gold); }
-        .stats-bar { display: flex; justify-content: center; gap: 50px; align-items: center; }
-        #timer { font-size: 2.5rem; color: #fff; background: #c62828; padding: 5px 20px; border-radius: 10px; border: 3px solid #fff; font-family: monospace; }
-        #progress-text { font-size: 2rem; color: var(--gold); }
-
-        .game-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 40px; padding: 20px; margin-top: 20px; }
-        .grid { display: grid; grid-template-columns: repeat(9, 60px); grid-template-rows: repeat(9, 60px); background: var(--border); border: 8px solid var(--border); }
-        .cell { width: 60px; height: 60px; background: var(--field); display: flex; align-items: center; justify-content: center; font-size: 32px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); box-sizing: border-box; }
-
-        /* DIVISIONES SUDOKU */
-        .cell:nth-child(3n) { border-right: 4px solid var(--border); }
-        .cell:nth-child(9n) { border-right: none; }
-        .cell:nth-child(n+19):nth-child(-n+27), .cell:nth-child(n+46):nth-child(-n+54) { border-bottom: 4px solid var(--border); }
-
-        .selected { background: var(--gold) !important; color: black; transform: scale(1.05); z-index: 5; }
-        .fixed { background: #0e3511; cursor: default; opacity: 0.8; }
+        :root { --field: #1b5e20; --gold: #ffd700; }
+        body { font-family: sans-serif; background: #0a1f0a; color: white; display: flex; flex-direction: column; align-items: center; margin: 0; }
+        .header { background: #000; width: 100%; padding: 10px; text-align: center; border-bottom: 4px solid var(--gold); }
+        #timer { font-size: 2rem; background: #c62828; padding: 5px 15px; border-radius: 8px; margin: 10px; inline-block; }
+        .game-container { display: flex; gap: 20px; padding: 20px; flex-wrap: wrap; justify-content: center; }
+        .grid { display: grid; grid-template-columns: repeat(9, 50px); grid-template-rows: repeat(9, 50px); background: #000; border: 5px solid #000; }
+        .cell { width: 50px; height: 50px; background: var(--field); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 28px; cursor: pointer; }
+        .cell:nth-child(3n) { border-right: 3px solid #000; }
+        .cell:nth-child(n+19):nth-child(-n+27), .cell:nth-child(n+46):nth-child(-n+54) { border-bottom: 3px solid #000; }
+        .selected { background: var(--gold) !important; color: #000; }
+        .fixed { background: #0d3b0f; cursor: default; }
         .error { background: #ff4444 !important; }
-
-        .sidebar { background: rgba(0,0,0,0.8); padding: 20px; border-radius: 15px; border: 3px solid var(--gold); }
-        .icon-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .icon-btn { font-size: 30px; width: 70px; height: 70px; border-radius: 10px; border: none; background: white; cursor: pointer; transition: 0.2s; }
-        .icon-btn:active { transform: scale(0.9); }
-        .delete-btn { grid-column: span 3; padding: 10px; background: #d32f2f; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 5px; }
-
-        #portada, #victory-msg { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        .btn-main { background: #4caf50; color: white; border: none; padding: 20px 40px; font-size: 1.5rem; border-radius: 30px; cursor: pointer; margin-top: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        #msg-partido-count { font-size: 2.8rem; color: var(--gold); margin-bottom: 10px; }
+        .sidebar { background: rgba(0,0,0,0.8); padding: 15px; border: 2px solid var(--gold); border-radius: 10px; }
+        .icon-grid { display: grid; grid-template-columns: repeat(3, 70px); gap: 10px; }
+        .icon-btn { width: 70px; height: 70px; font-size: 30px; cursor: pointer; background: white; border: none; border-radius: 8px; }
+        #victory-msg { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.95); display:none; flex-direction:column; align-items:center; justify-content:center; z-index:100; }
+        .btn-next { background: #4caf50; color: white; padding: 15px 30px; font-size: 1.5rem; border: none; border-radius: 10px; cursor: pointer; margin-top: 20px; }
     </style>
 </head>
 <body>
 
-    <div id="portada">
-        <h1 style="font-size: 4rem; color: var(--gold); margin-bottom: 0;">SUDOKU FOOTBALL</h1>
-        <p style="font-size: 1.5rem;">COMPLETA LAS 5 EVIDENCIAS TÁCTICAS</p>
-        <button class="btn-main" onclick="iniciar()">EMPEZAR CRONÓMETRO</button>
-    </div>
+<div class="header">
+    <h1 id="progress-text">PARTIDO 1 / 5</h1>
+    <div id="timer">00:00</div>
+</div>
 
-    <div class="header">
-        <div class="stats-bar">
-            <div id="progress-text">PARTIDO 1 / 5</div>
-            <div id="timer">00:00</div>
+<div class="game-container">
+    <div id="grid" class="grid"></div>
+    <div class="sidebar">
+        <div class="icon-grid">
+            <button class="icon-btn" onclick="put('⚽')">⚽</button>
+            <button class="icon-btn" onclick="put('🏆')">🏆</button>
+            <button class="icon-btn" onclick="put('👕')">👕</button>
+            <button class="icon-btn" onclick="put('📣')">📣</button>
+            <button class="icon-btn" onclick="put('🧤')">🧤</button>
+            <button class="icon-btn" onclick="put('🚩')">🚩</button>
+            <button class="icon-btn" onclick="put('👟')">👟</button>
+            <button class="icon-btn" onclick="put('⏱️')">⏱️</button>
+            <button class="icon-btn" onclick="put('🎫')">🎫</button>
+            <button class="icon-btn" style="grid-column: span 3; background: #ff4444; color: white; font-size: 1rem;" onclick="put('')">BORRAR</button>
         </div>
     </div>
+</div>
 
-    <div class="game-container">
-        <div id="grid" class="grid"></div>
-        <div class="sidebar">
-            <div class="icon-grid">
-                <button class="icon-btn" onclick="put('⚽')">⚽</button>
-                <button class="icon-btn" onclick="put('🏆')">🏆</button>
-                <button class="icon-btn" onclick="put('👕')">👕</button>
-                <button class="icon-btn" onclick="put('📣')">📣</button>
-                <button class="icon-btn" onclick="put('🧤')">🧤</button>
-                <button class="icon-btn" onclick="put('🚩')">🚩</button>
-                <button class="icon-btn" onclick="put('👟')">👟</button>
-                <button class="icon-btn" onclick="put('⏱️')">⏱️</button>
-                <button class="icon-btn" onclick="put('🎫')">🎫</button>
-                <button class="delete-btn" onclick="put('')">BORRAR SELECCIÓN</button>
-            </div>
-        </div>
-    </div>
+<div id="victory-msg">
+    <h1 id="msg-lvl" style="color:var(--gold); font-size: 3rem;">PARTIDO 1 / 5 COMPLETADO</h1>
+    <p id="final-time" style="font-size: 1.5rem;"></p>
+    <button class="btn-next" onclick="siguiente()">SIGUIENTE PARTIDO</button>
+</div>
 
-    <div id="victory-msg" style="display: none;">
-        <div id="msg-partido-count">PARTIDO 1 / 5 COMPLETADO</div>
-        <h2 style="color: white; margin: 0;">¡ESTRATEGIA VALIDADA!</h2>
-        <p id="final-time" style="font-size: 1.8rem; color: #4caf50; font-family: monospace;"></p>
-        <button class="btn-main" onclick="siguiente()">SIGUIENTE DESAFÍO</button>
-    </div>
+<script>
+    const gridDiv = document.getElementById('grid');
+    let selectedCell = null, currentLvl = 0, seconds = 0;
+    const icons = { 1:'⚽', 2:'🏆', 3:'👕', 4:'📣', 5:'🧤', 6:'🚩', 7:'👟', 8:'⏱️', 9:'🎫' };
 
-    <script>
-        const grid = document.getElementById('grid');
-        let selected = null, currentLvl = 0, time = 0, interval = null;
-        const items = { 1:'⚽', 2:'🏆', 3:'👕', 4:'📣', 5:'🧤', 6:'🚩', 7:'👟', 8:'⏱️', 9:'🎫' };
+    const levels = [
+        [[5,3,0,0,7,0,0,0,0],[6,0,0,1,9,5,0,0,0],[0,9,8,0,0,0,0,6,0],[8,0,0,0,6,0,0,0,3],[4,0,0,8,0,3,0,0,1],[7,0,0,0,2,0,0,0,6],[0,6,0,0,0,0,2,8,0],[0,0,0,4,1,9,0,0,5],[0,0,0,0,8,0,0,7,9]],
+        [[0,0,0,2,6,0,7,0,1],[6,8,0,0,7,0,0,9,0],[1,9,0,0,0,4,5,0,0],[8,2,0,1,0,0,0,4,0],[0,0,4,6,0,2,9,0,0],[0,5,0,0,0,3,0,2,8],[0,0,9,3,0,0,0,7,4],[0,4,0,0,5,0,0,3,6],[7,0,3,0,1,8,0,0,0]],
+        [[1,0,0,4,8,9,0,0,6],[7,3,0,0,0,0,0,4,0],[0,0,0,0,0,1,2,9,5],[0,0,7,1,2,0,6,0,0],[5,0,0,7,0,3,0,0,8],[0,0,6,0,9,5,7,0,0],[9,1,4,6,0,0,0,0,0],[0,2,0,0,0,0,0,3,7],[8,0,0,5,1,2,0,0,4]],
+        // NIVEL 4 CORREGIDO
+        [[0,0,0,0,0,0,0,0,2],[0,8,0,4,0,0,0,9,0],[6,0,0,0,2,0,5,0,0],[0,7,0,0,0,3,0,0,0],[0,0,9,0,0,0,2,0,0],[0,0,0,5,0,0,0,7,0],[0,0,1,0,4,0,0,0,3],[0,4,0,0,0,7,0,1,0],[9,0,0,0,0,0,0,0,0]],
+        // NIVEL 5
+        [[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,3,0,8,5],[0,0,1,0,2,0,0,0,0],[0,0,0,5,0,7,0,0,0],[0,0,4,0,0,0,1,0,0],[0,9,0,0,0,0,0,0,0],[5,0,0,0,0,0,0,7,3],[0,0,2,0,1,0,0,0,0],[0,0,0,0,4,0,0,0,9]]
+    ];
 
-        // NIVELES TOTALMENTE REVISADOS - SIN BLOQUEOS LÓGICOS
-        const levels = [
-            [[5,3,0,0,7,0,0,0,0],[6,0,0,1,9,5,0,0,0],[0,9,8,0,0,0,0,6,0],[8,0,0,0,6,0,0,0,3],[4,0,0,8,0,3,0,0,1],[7,0,0,0,2,0,0,0,6],[0,6,0,0,0,0,2,8,0],[0,0,0,4,1,9,0,0,5],[0,0,0,0,8,0,0,7,9]],
-            [[0,0,0,2,6,0,7,0,1],[6,8,0,0,7,0,0,9,0],[1,9,0,0,0,4,5,0,0],[8,2,0,1,0,0,0,4,0],[0,0,4,6,0,2,9,0,0],[0,5,0,0,0,3,0,2,8],[0,0,9,3,0,0,0,7,4],[0,4,0,0,5,0,0,3,6],[7,0,3,0,1,8,0,0,0]],
-            [[1,0,0,4,8,9,0,0,6],[7,3,0,0,0,0,0,4,0],[0,0,0,0,0,1,2,9,5],[0,0,7,1,2,0,6,0,0],[5,0,0,7,0,3,0,0,8],
+    function draw() {
+        gridDiv.innerHTML = '';
+        document.getElementById('progress-text').innerText = `PARTIDO ${currentLvl + 1} / 5`;
+        const data = levels[currentLvl];
+        for(let r=0; r<9; r++){
+            for(let c=0; c<9; c++){
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                if(data[r][c] !== 0){
+                    cell.innerText = icons[data[r][c]];
+                    cell.classList.add('fixed');
+                } else {
+                    cell.onclick = () => {
+                        document.querySelectorAll('.cell').forEach(ce => ce.classList.remove('selected'));
+                        cell.classList.add('selected');
+                        selectedCell = cell;
+                    };
+                }
+                cell.dataset.r = r; cell.dataset.c = c;
+                gridDiv.appendChild(cell);
+            }
+        }
+    }
+
+    function put(emoji) {
+        if(selectedCell && !selectedCell.classList.contains('fixed')) {
+            selectedCell.innerText = emoji;
+            validate();
+        }
+    }
+
+    function validate() {
+        const all = Array.from(document.querySelectorAll('.cell'));
+        all.forEach(c => c.classList.remove('error'));
+        let errors = 0, empty = 0;
+
+        all.forEach(c1 => {
+            if(!c1.innerText) { empty++; return; }
+            const r1 = c1.dataset.r, col1 = c1.dataset.c, b1 = Math.floor(r1/3)+'-'+Math.floor(col1/3);
+            all.forEach(c2 => {
+                if(c1 === c2 || c1.innerText !== c2.innerText) return;
+                const r2 = c2.dataset.r, col2 = c2.dataset.c, b2 = Math.floor(r2/3)+'-'+Math.floor(col2/3);
+                if(r1===r2 || col1===col2 || b1===b2) { c1.classList.add('error'); errors++; }
+            });
+        });
+
+        if(empty === 0 && errors === 0) {
+            document.getElementById('msg-lvl').innerText = `PARTIDO ${currentLvl + 1} / 5 COMPLETADO`;
+            document.getElementById('final-time').innerText = "Tiempo: " + document.getElementById('timer').innerText;
+            document.getElementById('victory-msg').style.display = 'flex';
+        }
+    }
+
+    function siguiente() {
+        if(currentLvl < 4) {
+            currentLvl++;
+            document.getElementById('victory-msg').style.display = 'none';
+            draw();
+        } else {
+            alert("¡EXAMEN FINALIZADO!");
+            location.reload();
+        }
+    }
+
+    setInterval(() => {
+        seconds++;
+        let m = Math.floor(seconds/60), s = seconds%60;
+        document.getElementById('timer').innerText = `${m<10?'0':''}${m}:${s<10?'0':''}${s}`;
+    }, 1000);
+
+    draw();
+</script>
+</body>
+</html>
