@@ -7,7 +7,6 @@
         :root { --field: #1b5e20; --gold: #ffd700; --border: #000; }
         body { font-family: 'Arial Black', sans-serif; background: #0a1f0a; color: white; display: flex; flex-direction: column; align-items: center; margin: 0; }
         
-        /* PORTADA CON INDICACIONES */
         #portada { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
         .instrucciones { background: rgba(255,255,255,0.1); padding: 30px; border-radius: 20px; border: 2px solid var(--gold); max-width: 600px; margin-bottom: 20px; }
         .instrucciones h2 { color: var(--gold); margin-top: 0; }
@@ -22,7 +21,6 @@
         .grid { display: grid; grid-template-columns: repeat(9, 50px); grid-template-rows: repeat(9, 50px); background: var(--border); border: 6px solid var(--border); }
         .cell { width: 50px; height: 50px; background: var(--field); display: flex; align-items: center; justify-content: center; font-size: 28px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); box-sizing: border-box; }
 
-        /* REJILLA GRUESA 3x3 */
         .cell:nth-child(3n) { border-right: 5px solid var(--border); }
         .cell:nth-child(9n) { border-right: 1px solid rgba(255,255,255,0.1); }
         .cell:nth-child(n+19):nth-child(-n+27), .cell:nth-child(n+46):nth-child(-n+54) { border-bottom: 5px solid var(--border); }
@@ -50,9 +48,9 @@
             <h2>INSTRUCCIONES DE LA ACTIVIDAD</h2>
             <ul>
                 <li>Completa el tablero utilizando las 9 figuras deportivas.</li>
-                <li><b>Regla de Oro:</b> No se puede repetir la misma figura en una misma fila, columna o bloque de 3x3 (marcados por líneas gruesas).</li>
-                <li>Selecciona una casilla vacía y luego pulsa la figura que desees colocar.</li>
-                <li>Si una casilla se pone <b>roja</b>, ¡hay un conflicto táctico! Revisa tu estrategia.</li>
+                <li><b>Regla de Oro:</b> No se puede repetir la misma figura en una misma fila, columna o bloque de 3x3.</li>
+                <li>Si una casilla se pone <b>roja</b>, hay un error en esa posición.</li>
+                <li>¡Supera los 5 partidos para ganar el torneo!</li>
             </ul>
         </div>
         <button class="btn-start" onclick="iniciar()">¡ENTRAR A LA CANCHA!</button>
@@ -82,7 +80,7 @@
     </div>
 
     <div id="victory">
-        <h1 id="win-text" style="color: var(--gold); font-size: 2.5rem;">¡PARTIDO GANADO!</h1>
+        <h1 id="win-text" style="color: var(--gold); font-size: 2.5rem;">¡DESAFÍO 1 / 5 COMPLETADO!</h1>
         <p id="time-res" style="font-size: 1.5rem; color: white;"></p>
         <button class="btn-start" onclick="siguiente()">SIGUIENTE PARTIDO</button>
     </div>
@@ -96,9 +94,7 @@
             [[5,3,0,0,7,0,0,0,0],[6,0,0,1,9,5,0,0,0],[0,9,8,0,0,0,0,6,0],[8,0,0,0,6,0,0,0,3],[4,0,0,8,0,3,0,0,1],[7,0,0,0,2,0,0,0,6],[0,6,0,0,0,0,2,8,0],[0,0,0,4,1,9,0,0,5],[0,0,0,0,8,0,0,7,9]],
             [[0,0,0,2,6,0,7,0,1],[6,8,0,0,7,0,0,9,0],[1,9,0,0,0,4,5,0,0],[8,2,0,1,0,0,0,4,0],[0,0,4,6,0,2,9,0,0],[0,5,0,0,0,3,0,2,8],[0,0,9,3,0,0,0,7,4],[0,4,0,0,5,0,0,3,6],[7,0,3,0,1,8,0,0,0]],
             [[1,0,0,4,8,9,0,0,6],[7,3,0,0,0,0,0,4,0],[0,0,0,0,0,1,2,9,5],[0,0,7,1,2,0,6,0,0],[5,0,0,7,0,3,0,0,8],[0,0,6,0,9,5,7,0,0],[9,1,4,6,0,0,0,0,0],[0,2,0,0,0,0,0,3,7],[8,0,0,5,1,2,0,0,4]],
-            // NIVEL 4: MATRIZ PROFESIONAL VALIDADA
             [[0,0,0,0,0,0,2,0,0],[0,8,0,0,0,7,0,9,0],[6,0,2,0,0,0,5,0,0],[0,7,0,0,6,0,0,0,0],[0,0,0,9,0,1,0,0,0],[0,0,0,0,2,0,0,4,0],[0,0,5,0,0,0,6,0,3],[0,9,0,4,0,0,0,7,0],[0,0,6,0,0,0,0,0,0]],
-            // NIVEL 5: FINAL
             [[0,0,0,6,0,0,4,0,0],[7,0,0,0,0,3,6,0,0],[0,0,0,0,9,1,0,8,0],[0,5,0,1,8,0,0,0,3],[0,0,0,3,0,6,0,4,5],[0,4,0,2,0,0,0,6,0],[9,0,3,0,0,0,0,0,0],[0,2,0,0,0,0,1,0,0],[0,0,0,0,0,0,0,0,0]]
         ];
 
@@ -151,14 +147,22 @@
 
             if(vacio === 0 && error === 0) {
                 clearInterval(interval);
+                document.getElementById('win-text').innerText = `¡DESAFÍO ${lvl + 1} / 5 COMPLETADO!`;
                 document.getElementById('time-res').innerText = "TIEMPO REGISTRADO: " + document.getElementById('timer').innerText;
                 document.getElementById('victory').style.display = 'flex';
             }
         }
 
         function siguiente() {
-            if(lvl < 4) { lvl++; document.getElementById('victory').style.display = 'none'; dibujar(); startTimer(); }
-            else { alert("¡ACTIVIDAD COMPLETADA CON ÉXITO!"); location.reload(); }
+            if(lvl < 4) { 
+                lvl++; 
+                document.getElementById('victory').style.display = 'none'; 
+                dibujar(); 
+                startTimer(); 
+            } else { 
+                alert("¡FELICIDADES! HAS GANADO EL TORNEO."); 
+                location.reload(); 
+            }
         }
     </script>
 </body>
