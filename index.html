@@ -3,113 +3,212 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SUDOKU TÁCTICO - VERSIÓN SEGURA</title>
+    <title>SUDOKU TÁCTICO - EVIDENCIA DE PARTIDO</title>
     <style>
-        :root { --field: #1b5e20; --gold: #ffd700; }
+        :root { --pasto: #1b5e20; --oro: #ffd700; --fondo: #0a1a0a; }
         body { 
-            font-family: sans-serif; 
-            background-color: #051405; 
-            color: white; margin: 0; display: flex; flex-direction: column; align-items: center; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: var(--fondo); color: white; margin: 0; 
+            display: flex; flex-direction: column; align-items: center; min-height: 100vh;
         }
 
-        /* PORTADA SEGURA */
+        /* PORTADA */
         #portada {
-            position: fixed; inset: 0; 
-            background: #0a1f0a;
-            z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            position: fixed; inset: 0; background: #000; z-index: 9999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
-        .logo-box { 
-            background: rgba(0,0,0,0.9); padding: 40px; border: 5px solid var(--gold); 
-            border-radius: 20px; text-align: center;
+        .intro-box { 
+            border: 5px solid var(--oro); padding: 50px; border-radius: 30px; text-align: center;
+            background: linear-gradient(145deg, #0f2e0f, #000);
         }
 
         /* HEADER */
-        .header { background: #000; width: 100%; padding: 15px; text-align: center; border-bottom: 4px solid var(--gold); }
-        #timer { font-size: 2rem; background: #c62828; padding: 5px 15px; border-radius: 8px; font-family: monospace; }
+        .header { width: 100%; background: #000; padding: 20px; text-align: center; border-bottom: 4px solid var(--oro); }
+        #timer { font-size: 2.5rem; background: #c62828; padding: 5px 20px; border-radius: 10px; font-family: monospace; border: 2px solid white; }
 
-        /* TABLERO GIGANTE */
-        .game-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 20px; }
+        /* AREA DE JUEGO */
+        .container { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; padding: 20px; }
         .grid { 
             display: grid; grid-template-columns: repeat(9, 60px); grid-template-rows: repeat(9, 60px); 
-            background: #000; border: 8px solid #000; 
+            background: #000; border: 10px solid #000;
         }
         .cell { 
-            width: 60px; height: 60px; background: var(--field); display: flex; align-items: center; 
-            justify-content: center; font-size: 30px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); 
+            width: 60px; height: 60px; background: var(--pasto); display: flex; align-items: center; 
+            justify-content: center; font-size: 32px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); 
         }
-
-        /* DIVISIONES 3x3 */
         .cell:nth-child(3n) { border-right: 5px solid #000; }
         .cell:nth-child(9n) { border-right: none; }
         .cell:nth-child(n+19):nth-child(-n+27), .cell:nth-child(n+46):nth-child(-n+54) { border-bottom: 5px solid #000; }
 
-        .selected { background: var(--gold) !important; }
-        .fixed { background: #0e3511; cursor: default; filter: brightness(0.6); }
+        .selected { background: var(--oro) !important; color: black; }
+        .fixed { background: #0e3511; cursor: default; filter: brightness(0.7); }
         .error { background: #ff4444 !important; }
 
-        /* PANEL FIGURAS */
-        .sidebar { background: #111; padding: 20px; border-radius: 15px; border: 2px solid var(--gold); }
-        .icon-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .icon-btn { font-size: 35px; width: 80px; height: 80px; border-radius: 10px; cursor: pointer; background: white; border: none; }
-        .btn-del { grid-column: span 3; background: #ff4444; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer; }
-
-        /* MODAL EVIDENCIA */
-        #victory-msg { 
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); 
-            flex-direction: column; align-items: center; justify-content: center; z-index: 11000; 
+        /* BOTONES */
+        .sidebar { background: #111; padding: 20px; border-radius: 20px; border: 2px solid var(--oro); }
+        .btn-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .icon-btn { font-size: 35px; width: 85px; height: 85px; border-radius: 12px; cursor: pointer; background: white; border: none; }
+        .btn-principal { 
+            background: var(--oro); color: black; border: none; padding: 20px 40px; 
+            font-size: 1.5rem; font-weight: bold; border-radius: 10px; cursor: pointer; margin-top: 20px;
         }
-        .card { background: white; color: black; padding: 30px; border-radius: 15px; text-align: center; width: 300px; }
+
+        /* MODAL DE EVIDENCIA */
+        #modal-evidencia { 
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); 
+            z-index: 10000; flex-direction: column; align-items: center; justify-content: center; 
+        }
+        .evidencia-card { 
+            background: white; color: black; padding: 40px; border-radius: 20px; 
+            border: 8px solid var(--oro); text-align: center; width: 80%; max-width: 400px;
+        }
+        .evidencia-data { font-size: 1.8rem; border: 3px dashed #333; margin: 20px 0; padding: 20px; }
     </style>
 </head>
 <body>
 
     <div id="portada">
-        <div class="logo-box">
-            <h1 style="color:var(--gold); margin:0;">SUDOKU TÁCTICO</h1>
-            <p>Desafío de Dirección Técnica</p>
-            <button onclick="iniciar()" style="padding:20px 40px; font-size:1.5rem; cursor:pointer; background:var(--gold); border:none; font-weight:bold; border-radius:10px;">INICIAR ACTIVIDAD</button>
+        <div class="intro-box">
+            <h1 style="color:var(--oro); font-size: 3rem; margin:0;">SUDOKU FOOTBALL</h1>
+            <p>Estrategia y Dirección Técnica</p>
+            <button class="btn-principal" onclick="empezar()">INICIAR ACTIVIDAD</button>
         </div>
     </div>
 
     <div class="header">
-        <span id="progreso" style="font-size:1.5rem; margin-right:20px;">PARTIDO 1 / 5</span>
+        <span id="label-nivel" style="font-size: 2rem; margin-right: 30px; color: var(--oro);">PARTIDO 1 / 5</span>
         <span id="timer">00:00</span>
     </div>
 
-    <div class="game-container">
-        <div class="grid" id="grid"></div>
+    <div class="container">
+        <div class="grid" id="tablero"></div>
         <div class="sidebar">
-            <div class="icon-grid">
-                <button class="icon-btn" onclick="put('⚽')">⚽</button>
-                <button class="icon-btn" onclick="put('🏆')">🏆</button>
-                <button class="icon-btn" onclick="put('👕')">👕</button>
-                <button class="icon-btn" onclick="put('📣')">📣</button>
-                <button class="icon-btn" onclick="put('🧤')">🧤</button>
-                <button class="icon-btn" onclick="put('🚩')">🚩</button>
-                <button class="icon-btn" onclick="put('👟')">👟</button>
-                <button class="icon-btn" onclick="put('⏱️')">⏱️</button>
-                <button class="icon-btn" onclick="put('🎫')">🎫</button>
-                <button class="btn-del" onclick="put('')">BORRAR ❌</button>
+            <div class="btn-grid">
+                <button class="icon-btn" onclick="poner('⚽')">⚽</button>
+                <button class="icon-btn" onclick="poner('🏆')">🏆</button>
+                <button class="icon-btn" onclick="poner('👕')">👕</button>
+                <button class="icon-btn" onclick="poner('📣')">📣</button>
+                <button class="icon-btn" onclick="poner('🧤')">🧤</button>
+                <button class="icon-btn" onclick="poner('🚩')">🚩</button>
+                <button class="icon-btn" onclick="poner('👟')">👟</button>
+                <button class="icon-btn" onclick="poner('⏱️')">⏱️</button>
+                <button class="icon-btn" onclick="poner('🎫')">🎫</button>
+                <button class="icon-btn" onclick="poner('')" style="grid-column: span 3; background:#ff4444; color:white; font-size:1.2rem;">BORRAR ❌</button>
             </div>
         </div>
     </div>
 
-    <div id="victory-msg">
-        <div class="card">
-            <h1 style="color:#1b5e20">¡GOL!</h1>
-            <p id="ev-partido" style="font-weight:bold; font-size:1.2rem;"></p>
-            <p id="ev-tiempo" style="font-size:1.5rem; background:#eee; padding:10px;"></p>
-            <p>Toma captura de pantalla</p>
-            <button onclick="next()" style="padding:15px; width:100%; background:#1b5e20; color:white; border:none; border-radius:5px; cursor:pointer;">SIGUIENTE NIVEL</button>
+    <div id="modal-evidencia">
+        <div class="evidencia-card">
+            <h1 style="color:var(--pasto); margin:0;">¡GOL!</h1>
+            <p>Estrategia Táctica Correcta</p>
+            <div class="evidencia-data">
+                <div id="res-partido" style="color:#c62828; font-weight:bold;">PARTIDO 1 de 5</div>
+                <div id="res-tiempo">TIEMPO: 00:00</div>
+            </div>
+            <p style="font-size: 0.9rem; color: #555;">Toma captura de pantalla como evidencia.</p>
+            <button class="btn-principal" id="btn-accion" onclick="siguiente()" style="width:100%">SIGUIENTE PARTIDO</button>
         </div>
     </div>
 
     <script>
-        let selected = null, level = 0, seconds = 0, timerObj = null;
-        const emojis = { 1:'⚽', 2:'🏆', 3:'👕', 4:'📣', 5:'🧤', 6:'🚩', 7:'👟', 8:'⏱️', 9:'🎫' };
-        const puzzles = [
+        let casillaSeleccionada = null, nivelActual = 0, segundos = 0, relojIntervalo = null;
+        const figuras = { 1:'⚽', 2:'🏆', 3:'👕', 4:'📣', 5:'🧤', 6:'🚩', 7:'👟', 8:'⏱️', 9:'🎫' };
+        
+        const niveles = [
             [[5,3,0,0,7,0,0,0,0],[6,0,0,1,9,5,0,0,0],[0,9,8,0,0,0,0,6,0],[8,0,0,0,6,0,0,0,3],[4,0,0,8,0,3,0,0,1],[7,0,0,0,2,0,0,0,6],[0,6,0,0,0,0,2,8,0],[0,0,0,4,1,9,0,0,5],[0,0,0,0,8,0,0,7,9]],
             [[0,0,0,2,6,0,7,0,1],[6,8,0,0,7,0,0,9,0],[1,9,0,0,0,4,5,0,0],[8,2,0,1,0,0,0,4,0],[0,0,4,6,0,2,9,0,0],[0,5,0,0,0,3,0,2,8],[0,0,9,3,0,0,0,7,4],[0,4,0,0,5,0,0,3,6],[7,0,3,0,1,8,0,0,0]],
             [[1,0,0,4,8,9,0,0,6],[7,3,0,0,0,0,0,4,0],[0,0,0,0,0,1,2,9,5],[0,0,7,1,2,0,6,0,0],[5,0,0,7,0,3,0,0,8],[0,0,6,0,9,5,7,0,0],[9,1,4,6,0,0,0,0,0],[0,2,0,0,0,0,0,3,7],[8,0,0,5,1,2,0,0,4]],
             [[0,2,0,6,0,8,0,0,0],[5,8,0,0,0,9,7,0,0],[0,0,0,0,4,0,0,0,0],[3,7,0,0,0,0,5,0,0],[6,0,0,0,0,0,0,0,4],[0,0,8,0,0,0,0,1,3],[0,0,0,0,2,0,0,0,0],[0,0,9,8,0,0,0,3,6],[0,0,0,3,0,6,0,9,0]],
-            [[0,0,0,6,0,0,4,0,0],[7,0,0,0,0,3,6,0,0],[0,0,0,0,9,1,0,8,0],[0,0,0,0,0,0,0,0,0],[0,5,0,1,8,0,0,0,3],[0,0,0,3,0,6,0,4,5],[0,4,0,2,0,0,0,6,0],[9,0,3,0,0,0,0,0,0],[0,2,
+            [[0,0,0,6,0,0,4,0,0],[7,0,0,0,0,3,6,0,0],[0,0,0,0,9,1,0,8,0],[0,0,0,0,0,0,0,0,0],[0,5,0,1,8,0,0,0,3],[0,0,0,3,0,6,0,4,5],[0,4,0,2,0,0,0,6,0],[9,0,3,0,0,0,0,0,0],[0,2,0,0,0,0,1,0,0]]
+        ];
+
+        function empezar() {
+            document.getElementById('portada').style.display = 'none';
+            generarTablero();
+            iniciarReloj();
+        }
+
+        function generarTablero() {
+            const grid = document.getElementById('tablero');
+            grid.innerHTML = '';
+            document.getElementById('label-nivel').innerText = `PARTIDO ${nivelActual + 1} / 5`;
+            
+            niveles[nivelActual].forEach((fila, r) => {
+                fila.forEach((valor, c) => {
+                    const celda = document.createElement('div');
+                    celda.className = 'cell';
+                    celda.dataset.r = r; celda.dataset.c = c;
+                    
+                    if(valor !== 0) {
+                        celda.innerText = figuras[valor];
+                        celda.classList.add('fixed');
+                    } else {
+                        celda.onclick = () => {
+                            document.querySelectorAll('.cell').forEach(c => c.classList.remove('selected'));
+                            celda.classList.add('selected');
+                            casillaSeleccionada = celda;
+                        };
+                    }
+                    grid.appendChild(celda);
+                });
+            });
+        }
+
+        function poner(emoji) {
+            if(casillaSeleccionada && !casillaSeleccionada.classList.contains('fixed')) {
+                casillaSeleccionada.innerText = emoji;
+                validar();
+            }
+        }
+
+        function iniciarReloj() {
+            segundos = 0; clearInterval(relojIntervalo);
+            relojIntervalo = setInterval(() => {
+                segundos++;
+                let m = Math.floor(segundos/60), s = segundos%60;
+                document.getElementById('timer').innerText = `${m<10?'0':''}${m}:${s<10?'0':''}${s}`;
+            }, 1000);
+        }
+
+        function validar() {
+            const celdas = Array.from(document.querySelectorAll('.cell'));
+            celdas.forEach(c => c.classList.remove('error'));
+            let errores = 0, llenas = 0;
+
+            celdas.forEach(c1 => {
+                const val = c1.innerText;
+                if(!val) return;
+                llenas++;
+                
+                celdas.forEach(c2 => {
+                    if(c1 === c2 || c2.innerText !== val) return;
+                    const r1 = c1.dataset.r, c1c = c1.dataset.c, r2 = c2.dataset.r, c2c = c2.dataset.c;
+                    const b1 = `${Math.floor(r1/3)}-${Math.floor(c1c/3)}`, b2 = `${Math.floor(r2/3)}-${Math.floor(c2c/3)}`;
+                    
+                    if(r1 === r2 || c1c === c2c || b1 === b2) {
+                        c1.classList.add('error'); errores++;
+                    }
+                });
+            });
+
+            if(llenas === 81 && errores === 0) {
+                clearInterval(relojIntervalo);
+                document.getElementById('res-partido').innerText = `PARTIDO ${nivelActual + 1} de 5`;
+                document.getElementById('res-tiempo').innerText = `TIEMPO: ${document.getElementById('timer').innerText}`;
+                if(nivelActual >= 4) document.getElementById('btn-accion').innerText = "TERMINAR ACTIVIDAD";
+                document.getElementById('modal-evidencia').style.display = 'flex';
+            }
+        }
+
+        function siguiente() {
+            if(nivelActual >= 4) { location.reload(); }
+            else {
+                nivelActual++;
+                document.getElementById('modal-evidencia').style.display = 'none';
+                generarTablero(); iniciarReloj();
+            }
+        }
+    </script>
+</body>
+</html>
