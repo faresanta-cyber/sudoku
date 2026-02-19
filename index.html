@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SUDOKU TÁCTICO - NIVEL PROFESIONAL</title>
+    <title>SUDOKU TÁCTICO - EVIDENCIA EDUCATIVA</title>
     <style>
         :root { --accent: #ffeb3b; --field: #1b5e20; --border: #000000; --gold: #ffd700; }
         body { 
@@ -12,24 +12,15 @@
             color: white; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh;
         }
 
-        /* HEADER */
         .header { background: rgba(0,0,0,0.9); width: 100%; padding: 15px; text-align: center; border-bottom: 6px solid var(--gold); }
         .stats-bar { display: flex; justify-content: center; gap: 50px; align-items: center; }
         #timer { font-size: 2.5rem; color: #fff; background: #c62828; padding: 5px 20px; border-radius: 10px; border: 3px solid #fff; font-family: monospace; }
         #progress-text { font-size: 2rem; color: var(--gold); }
 
-        /* TABLERO */
         .game-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 40px; padding: 20px; margin-top: 20px; }
-        .grid { 
-            display: grid; grid-template-columns: repeat(9, 60px); grid-template-rows: repeat(9, 60px); 
-            background: var(--border); border: 8px solid var(--border);
-        }
-        .cell { 
-            width: 60px; height: 60px; background: var(--field); display: flex; align-items: center; 
-            justify-content: center; font-size: 32px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); box-sizing: border-box;
-        }
+        .grid { display: grid; grid-template-columns: repeat(9, 60px); grid-template-rows: repeat(9, 60px); background: var(--border); border: 8px solid var(--border); }
+        .cell { width: 60px; height: 60px; background: var(--field); display: flex; align-items: center; justify-content: center; font-size: 32px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); box-sizing: border-box; }
 
-        /* DIVISIONES SUDOKU */
         .cell:nth-child(3n) { border-right: 4px solid var(--border); }
         .cell:nth-child(9n) { border-right: none; }
         .cell:nth-child(n+19):nth-child(-n+27), .cell:nth-child(n+46):nth-child(-n+54) { border-bottom: 4px solid var(--border); }
@@ -38,24 +29,22 @@
         .fixed { background: #0e3511; cursor: default; opacity: 0.8; }
         .error { background: #ff4444 !important; }
 
-        /* CONTROLES */
         .sidebar { background: rgba(0,0,0,0.8); padding: 20px; border-radius: 15px; border: 3px solid var(--gold); }
         .icon-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         .icon-btn { font-size: 30px; width: 70px; height: 70px; border-radius: 10px; border: none; background: white; cursor: pointer; }
-        .icon-btn:hover { background: var(--gold); }
         .delete-btn { grid-column: span 3; padding: 10px; background: #d32f2f; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
 
-        /* PORTADA Y MENSAJES */
         #portada, #victory-msg { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
         .btn-main { background: #4caf50; color: white; border: none; padding: 20px 40px; font-size: 1.5rem; border-radius: 30px; cursor: pointer; margin-top: 20px; }
+        #msg-partido-count { font-size: 2.5rem; color: var(--gold); margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
     <div id="portada">
-        <h1 style="font-size: 3rem; color: var(--gold);">EXAMEN TÁCTICO</h1>
-        <p>Resuelve los 5 partidos de Sudoku Football.</p>
-        <button class="btn-main" onclick="iniciar()">EMPEZAR JUEGO</button>
+        <h1 style="font-size: 3.5rem; color: var(--gold); margin-bottom: 0;">SUDOKU FOOTBALL</h1>
+        <p style="font-size: 1.2rem;">MODO EXAMEN: LOGRA LAS 5 EVIDENCIAS</p>
+        <button class="btn-main" onclick="iniciar()">EMPEZAR CRONÓMETRO</button>
     </div>
 
     <div class="header">
@@ -66,7 +55,7 @@
     </div>
 
     <div class="game-container">
-        <div class="grid" id="grid"></div>
+        <div id="grid" class="grid"></div>
         <div class="sidebar">
             <div class="icon-grid">
                 <button class="icon-btn" onclick="put('⚽')">⚽</button>
@@ -84,9 +73,10 @@
     </div>
 
     <div id="victory-msg" style="display: none;">
-        <h1 style="color: var(--gold);">¡PARTIDO GANADO!</h1>
-        <p id="final-time"></p>
-        <button class="btn-main" onclick="siguiente()">SIGUIENTE NIVEL</button>
+        <div id="msg-partido-count">PARTIDO 1 / 5 COMPLETADO</div>
+        <h1 style="color: white; margin: 0;">¡ESTRATEGIA PERFECTA!</h1>
+        <p id="final-time" style="font-size: 1.5rem; color: #4caf50;"></p>
+        <button class="btn-main" onclick="siguiente()">SIGUIENTE PARTIDO</button>
     </div>
 
     <script>
@@ -94,23 +84,26 @@
         let selected = null, currentLvl = 0, time = 0, interval = null;
         const items = { 1:'⚽', 2:'🏆', 3:'👕', 4:'📣', 5:'🧤', 6:'🚩', 7:'👟', 8:'⏱️', 9:'🎫' };
 
-        // TABLEROS REVISADOS Y VALIDADOS (El 4 y 5 ahora son correctos)
         const levels = [
             [[5,3,0,0,7,0,0,0,0],[6,0,0,1,9,5,0,0,0],[0,9,8,0,0,0,0,6,0],[8,0,0,0,6,0,0,0,3],[4,0,0,8,0,3,0,0,1],[7,0,0,0,2,0,0,0,6],[0,6,0,0,0,0,2,8,0],[0,0,0,4,1,9,0,0,5],[0,0,0,0,8,0,0,7,9]],
             [[0,0,0,2,6,0,7,0,1],[6,8,0,0,7,0,0,9,0],[1,9,0,0,0,4,5,0,0],[8,2,0,1,0,0,0,4,0],[0,0,4,6,0,2,9,0,0],[0,5,0,0,0,3,0,2,8],[0,0,9,3,0,0,0,7,4],[0,4,0,0,5,0,0,3,6],[7,0,3,0,1,8,0,0,0]],
             [[1,0,0,4,8,9,0,0,6],[7,3,0,0,0,0,0,4,0],[0,0,0,0,0,1,2,9,5],[0,0,7,1,2,0,6,0,0],[5,0,0,7,0,3,0,0,8],[0,0,6,0,9,5,7,0,0],[9,1,4,6,0,0,0,0,0],[0,2,0,0,0,0,0,3,7],[8,0,0,5,1,2,0,0,4]],
+            // NIVEL 4: RESOLUBLE Y TESTEADO
             [[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,3,0,8,5],[0,0,1,0,2,0,0,0,0],[0,0,0,5,0,7,0,0,0],[0,0,4,0,0,0,1,0,0],[0,9,0,0,0,0,0,0,0],[5,0,0,0,0,0,0,7,3],[0,0,2,0,1,0,0,0,0],[0,0,0,0,4,0,0,0,9]],
+            // NIVEL 5
             [[0,0,0,0,0,0,2,0,0],[0,8,0,0,0,0,0,0,0],[0,0,0,1,0,0,0,0,3],[0,0,0,0,4,0,0,0,0],[0,0,5,0,0,0,0,0,0],[1,0,0,0,0,0,0,7,0],[0,0,0,0,0,0,8,0,0],[0,0,0,0,0,6,0,0,0],[0,4,0,0,0,0,0,0,0]]
         ];
 
         function iniciar() {
             document.getElementById('portada').style.display = 'none';
             generarTablero();
-            interval = setInterval(() => {
-                time++;
-                let m = Math.floor(time/60), s = time%60;
-                document.getElementById('timer').innerText = `${m<10?'0':''}${m}:${s<10?'0':''}${s}`;
-            }, 1000);
+            if(!interval) {
+                interval = setInterval(() => {
+                    time++;
+                    let m = Math.floor(time/60), s = time%60;
+                    document.getElementById('timer').innerText = `${m<10?'0':''}${m}:${s<10?'0':''}${s}`;
+                }, 1000);
+            }
         }
 
         function generarTablero() {
@@ -166,8 +159,9 @@
             });
 
             if(vacios === 0 && fallos === 0) {
+                document.getElementById('msg-partido-count').innerText = `PARTIDO ${currentLvl + 1} / 5 COMPLETADO`;
+                document.getElementById('final-time').innerText = "Tiempo acumulado: " + document.getElementById('timer').innerText;
                 document.getElementById('victory-msg').style.display = 'flex';
-                document.getElementById('final-time').innerText = "Tiempo: " + document.getElementById('timer').innerText;
             }
         }
 
@@ -177,7 +171,7 @@
                 document.getElementById('victory-msg').style.display = 'none';
                 generarTablero();
             } else {
-                alert("¡EXAMEN COMPLETADO CON ÉXITO!");
+                alert("¡FELICIDADES! HAS COMPLETADO EL EXAMEN TÁCTICO.");
                 location.reload();
             }
         }
