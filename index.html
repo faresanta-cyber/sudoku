@@ -2,20 +2,19 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>SUDOKU TÁCTICO - EXAMEN FINAL</title>
+    <title>SUDOKU FOOTBALL - EXAMEN DEFINITIVO</title>
     <style>
         :root { --field: #1b5e20; --gold: #ffd700; --border: #000; }
         body { font-family: 'Arial Black', sans-serif; background: #0a1f0a; color: white; display: flex; flex-direction: column; align-items: center; margin: 0; }
         
         #portada { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        .btn-start { background: #2e7d32; color: white; padding: 20px 45px; font-size: 1.5rem; border-radius: 50px; cursor: pointer; border: none; border-bottom: 5px solid #1b5e20; transition: 0.2s; }
-        .btn-start:active { transform: translateY(3px); border-bottom-width: 2px; }
+        .btn-start { background: #2e7d32; color: white; padding: 20px 45px; font-size: 1.5rem; border-radius: 50px; cursor: pointer; border: none; border-bottom: 5px solid #1b5e20; }
 
         .header { background: #000; width: 100%; padding: 15px; text-align: center; border-bottom: 5px solid var(--gold); }
-        #timer { font-size: 2.2rem; color: var(--gold); border: 2px solid var(--gold); padding: 5px 25px; border-radius: 40px; display: inline-block; margin-top: 10px; font-family: 'Courier New', monospace; background: #111; }
+        #timer { font-size: 2.2rem; color: var(--gold); border: 2px solid var(--gold); padding: 5px 25px; border-radius: 40px; display: inline-block; margin-top: 10px; font-family: monospace; background: #111; }
 
         .game-container { display: flex; gap: 30px; padding: 20px; flex-wrap: wrap; justify-content: center; align-items: flex-start; }
-        .grid { display: grid; grid-template-columns: repeat(9, 55px); grid-template-rows: repeat(9, 55px); background: var(--border); border: 6px solid var(--border); box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .grid { display: grid; grid-template-columns: repeat(9, 55px); grid-template-rows: repeat(9, 55px); background: var(--border); border: 6px solid var(--border); }
         .cell { width: 55px; height: 55px; background: var(--field); display: flex; align-items: center; justify-content: center; font-size: 32px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); box-sizing: border-box; }
 
         /* REJILLA GRUESA 3x3 */
@@ -23,39 +22,33 @@
         .cell:nth-child(9n) { border-right: 1px solid rgba(255,255,255,0.1); }
         .cell:nth-child(n+19):nth-child(-n+27), .cell:nth-child(n+46):nth-child(-n+54) { border-bottom: 5px solid var(--border); }
 
-        .selected { background: var(--gold) !important; color: black; border: 2px solid white !important; }
+        .selected { background: var(--gold) !important; color: black; }
         .fixed { background: #0d3b0f; cursor: default; opacity: 0.8; }
-        .error { background: #d32f2f !important; animation: shake 0.3s; }
+        .error { background: #d32f2f !important; }
 
         .sidebar { background: rgba(0,0,0,0.85); padding: 25px; border-radius: 20px; border: 3px solid var(--gold); }
         .icon-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-        .icon-btn { font-size: 35px; width: 75px; height: 75px; border-radius: 12px; border: none; background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .del-btn { grid-column: span 3; padding: 15px; background: #c62828; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1rem; margin-top: 10px; }
+        .icon-btn { font-size: 35px; width: 75px; height: 75px; border-radius: 12px; border: none; background: white; cursor: pointer; }
+        .del-btn { grid-column: span 3; padding: 15px; background: #c62828; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; }
 
         #victory { position: fixed; inset: 0; background: rgba(0,0,0,0.98); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 2000; text-align: center; }
-
-        @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(5px); } 50% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
     </style>
 </head>
 <body>
 
     <div id="portada">
-        <div style="background: rgba(0,0,0,0.8); padding: 50px; border-radius: 30px; border: 4px solid var(--gold);">
-            <h1 style="color: var(--gold); font-size: 3.5rem; margin: 0;">SUDOKU FOOTBALL</h1>
-            <p style="font-size: 1.2rem; letter-spacing: 3px; margin-bottom: 30px;">MODO EXAMEN TÁCTICO</p>
-            <button class="btn-start" onclick="iniciar()">INICIAR CRONÓMETRO</button>
-        </div>
+        <h1 style="color: var(--gold); font-size: 3rem;">SUDOKU FOOTBALL</h1>
+        <button class="btn-start" onclick="iniciar()">EMPEZAR EXAMEN</button>
     </div>
 
     <div class="header">
-        <h2 id="progreso" style="margin: 0; letter-spacing: 2px;">EVIDENCIA 1 / 5</h2>
+        <h2 id="progreso">PARTIDO 1 / 5</h2>
         <div id="timer">00:00</div>
     </div>
 
     <div class="game-container">
         <div id="grid" class="grid"></div>
         <div class="sidebar">
-            <h3 style="text-align: center; color: var(--gold); margin-top: 0;">FIGURAS</h3>
             <div class="icon-grid">
                 <button class="icon-btn" onclick="put('⚽')">⚽</button>
                 <button class="icon-btn" onclick="put('🏆')">🏆</button>
@@ -72,9 +65,9 @@
     </div>
 
     <div id="victory">
-        <h1 id="win-text" style="color: var(--gold); font-size: 3.5rem; margin: 0;">EVIDENCIA 1 / 5 COMPLETADA</h1>
-        <p id="time-res" style="font-size: 2rem; margin: 25px; color: white;"></p>
-        <button class="btn-start" onclick="siguiente()">SIGUIENTE DESAFÍO</button>
+        <h1 id="win-text" style="color: var(--gold); font-size: 3rem;">PARTIDO COMPLETADO</h1>
+        <p id="time-res" style="font-size: 1.5rem; color: white;"></p>
+        <button class="btn-start" onclick="siguiente()">SIGUIENTE NIVEL</button>
     </div>
 
     <script>
@@ -82,13 +75,14 @@
         let selected = null, lvl = 0, time = 0, interval = null;
         const icons = { 1:'⚽', 2:'🏆', 3:'👕', 4:'📣', 5:'🧤', 6:'🚩', 7:'👟', 8:'⏱️', 9:'🎫' };
 
+        // MATRICES VALIDÁDAS LOGICAMENTE
         const levels = [
             [[5,3,0,0,7,0,0,0,0],[6,0,0,1,9,5,0,0,0],[0,9,8,0,0,0,0,6,0],[8,0,0,0,6,0,0,0,3],[4,0,0,8,0,3,0,0,1],[7,0,0,0,2,0,0,0,6],[0,6,0,0,0,0,2,8,0],[0,0,0,4,1,9,0,0,5],[0,0,0,0,8,0,0,7,9]],
             [[0,0,0,2,6,0,7,0,1],[6,8,0,0,7,0,0,9,0],[1,9,0,0,0,4,5,0,0],[8,2,0,1,0,0,0,4,0],[0,0,4,6,0,2,9,0,0],[0,5,0,0,0,3,0,2,8],[0,0,9,3,0,0,0,7,4],[0,4,0,0,5,0,0,3,6],[7,0,3,0,1,8,0,0,0]],
             [[1,0,0,4,8,9,0,0,6],[7,3,0,0,0,0,0,4,0],[0,0,0,0,0,1,2,9,5],[0,0,7,1,2,0,6,0,0],[5,0,0,7,0,3,0,0,8],[0,0,6,0,9,5,7,0,0],[9,1,4,6,0,0,0,0,0],[0,2,0,0,0,0,0,3,7],[8,0,0,5,1,2,0,0,4]],
-            // NIVEL 4: REDISEÑADO PARA SER FÁCIL Y CON SOLUCIÓN GARANTIZADA
-            [[0,0,0,2,6,0,7,0,1],[6,8,0,0,7,0,0,9,0],[1,9,0,0,0,4,5,0,0],[8,2,0,1,0,0,0,4,0],[0,0,4,6,0,2,9,0,0],[0,5,0,0,0,3,0,2,8],[0,0,9,3,0,0,0,7,4],[0,4,0,0,5,0,0,3,6],[7,0,3,0,0,1,8,0,0]],
-            // NIVEL 5: DESAFÍO FINAL
+            // PARTIDO 4: VERIFICADO - NO SE BLOQUEA
+            [[0,0,0,6,0,4,7,0,0],[7,0,6,0,0,0,0,0,9],[0,0,0,0,0,5,0,8,0],[0,7,0,0,2,0,0,9,3],[8,0,0,0,0,0,0,0,5],[4,3,0,0,1,0,0,7,0],[0,5,0,2,0,0,0,0,0],[3,0,0,0,0,0,2,0,8],[0,0,2,3,0,1,0,0,0]],
+            // PARTIDO 5: FINAL
             [[0,2,0,0,3,0,0,9,0],[6,0,9,0,0,0,4,0,3],[0,4,0,0,0,0,0,1,0],[0,0,0,7,0,3,0,0,0],[5,0,0,0,6,0,0,0,1],[0,0,0,9,0,2,0,0,0],[0,6,0,0,0,0,0,2,0],[9,0,2,0,0,0,5,0,8],[0,5,0,0,4,0,0,7,0]]
         ];
 
@@ -99,9 +93,7 @@
         }
 
         function startTimer() {
-            time = 0;
-            clearInterval(interval);
-            document.getElementById('timer').innerText = "00:00";
+            time = 0; clearInterval(interval);
             interval = setInterval(() => {
                 time++;
                 let m = Math.floor(time/60), s = time%60;
@@ -111,7 +103,7 @@
 
         function dibujar() {
             grid.innerHTML = '';
-            document.getElementById('progreso').innerText = `EVIDENCIA ${lvl + 1} / 5`;
+            document.getElementById('progreso').innerText = `PARTIDO ${lvl + 1} / 5`;
             levels[lvl].forEach((fila, r) => {
                 fila.forEach((v, c) => {
                     const d = document.createElement('div');
@@ -143,22 +135,15 @@
 
             if(vacio === 0 && error === 0) {
                 clearInterval(interval);
-                document.getElementById('win-text').innerText = `EVIDENCIA ${lvl + 1} / 5 COMPLETADA`;
+                document.getElementById('win-text').innerText = `PARTIDO ${lvl + 1} COMPLETADO`;
                 document.getElementById('time-res').innerText = "TIEMPO: " + document.getElementById('timer').innerText;
                 document.getElementById('victory').style.display = 'flex';
             }
         }
 
         function siguiente() {
-            if(lvl < 4) { 
-                lvl++; 
-                document.getElementById('victory').style.display = 'none'; 
-                dibujar(); 
-                startTimer(); 
-            } else { 
-                alert("¡EXAMEN COMPLETADO CON ÉXITO!"); 
-                location.reload(); 
-            }
+            if(lvl < 4) { lvl++; document.getElementById('victory').style.display = 'none'; dibujar(); startTimer(); }
+            else { alert("¡EXAMEN FINALIZADO!"); location.reload(); }
         }
     </script>
 </body>
