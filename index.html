@@ -35,12 +35,12 @@
         .del-btn { grid-column: span 3; padding: 10px; background: #c62828; color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 5px; }
 
         #victory { position: fixed; inset: 0; background: rgba(0,0,0,0.98); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 2000; }
-        #skip-btn { position: fixed; bottom: 10px; right: 10px; opacity: 0.2; background: gray; color: white; border: none; padding: 5px; cursor: pointer; font-size: 10px; }
+        #skip-btn { position: fixed; bottom: 10px; right: 10px; opacity: 0.1; background: gray; color: white; border: none; padding: 5px; cursor: pointer; font-size: 10px; }
     </style>
 </head>
 <body>
 
-    <button id="skip-btn" onclick="siguiente()">SALTAR NIVEL</button>
+    <button id="skip-btn" onclick="siguiente()">SALTAR</button>
 
     <div id="portada">
         <h1 style="color: var(--gold); font-size: 2.5rem; margin-bottom: 10px;">SUDOKU TÁCTICO</h1>
@@ -49,8 +49,8 @@
             <ul>
                 <li>Completa el tablero utilizando las 9 figuras deportivas.</li>
                 <li><b>Regla de Oro:</b> No se puede repetir la misma figura en una misma fila, columna o bloque de 3x3.</li>
-                <li>Si una casilla se pone <b>roja</b>, hay un error en esa posición.</li>
-                <li>¡Supera los 5 partidos para ganar el torneo!</li>
+                <li>Si una casilla se pone <b>roja</b>, hay un error.</li>
+                <li>Supera los 5 desafíos para ganar.</li>
             </ul>
         </div>
         <button class="btn-start" onclick="iniciar()">¡ENTRAR A LA CANCHA!</button>
@@ -80,8 +80,8 @@
     </div>
 
     <div id="victory">
-        <h1 id="win-text" style="color: var(--gold); font-size: 2.5rem;">¡DESAFÍO 1 / 5 COMPLETADO!</h1>
-        <p id="time-res" style="font-size: 1.5rem; color: white;"></p>
+        <h1 id="win-text" style="color: var(--gold); font-size: 2.5rem; margin-bottom: 10px;">¡COMPLETADO!</h1>
+        <p id="time-res" style="font-size: 1.5rem; color: white; margin-bottom: 20px;"></p>
         <button class="btn-start" onclick="siguiente()">SIGUIENTE PARTIDO</button>
     </div>
 
@@ -147,6 +147,7 @@
 
             if(vacio === 0 && error === 0) {
                 clearInterval(interval);
+                // ESTO ES LO QUE ARREGLÉ:
                 document.getElementById('win-text').innerText = `¡DESAFÍO ${lvl + 1} / 5 COMPLETADO!`;
                 document.getElementById('time-res').innerText = "TIEMPO REGISTRADO: " + document.getElementById('timer').innerText;
                 document.getElementById('victory').style.display = 'flex';
