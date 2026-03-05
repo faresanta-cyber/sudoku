@@ -3,38 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maratón de Memoria Deportiva</title>
+    <title>Evaluación Integral: Ciencias del Deporte</title>
     <style>
-        :root { --verde: #2e7d32; --oro: #ffeb3b; --blanco: #ffffff; --negro: #1a1a1a; }
-        body { font-family: 'Arial Black', sans-serif; background-color: var(--negro); color: white; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
-        #nivel-titulo { color: var(--oro); font-size: 1.5rem; text-transform: uppercase; margin-bottom: 10px; }
-        #cronometro { font-size: 2rem; color: var(--oro); background: #000; padding: 5px 25px; border-radius: 50px; border: 2px solid var(--oro); margin-bottom: 20px; }
-        .tablero { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; max-width: 95vw; background: #004d00; padding: 15px; border: 5px solid #000; border-radius: 15px; }
-        .carta { width: 100px; height: 100px; background: var(--verde); border: 2px solid white; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 0.75rem; font-weight: bold; text-align: center; border-radius: 8px; user-select: none; }
-        .carta.volteada { background: var(--blanco); color: black; }
-        .carta.correcta { background: #81c784; border-color: #81c784; color: white; cursor: default; visibility: hidden; }
-        #mensaje-nivel { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--oro); color: black; padding: 40px; border-radius: 20px; text-align: center; box-shadow: 0 0 50px rgba(0,0,0,0.8); z-index: 100; border: 5px solid black; }
-        button { background: black; color: white; border: none; padding: 15px 30px; font-family: 'Arial Black'; cursor: pointer; border-radius: 10px; margin-top: 20px; }
-        @media (max-width: 600px) { .tablero { grid-template-columns: repeat(4, 1fr); } .carta { width: 80px; height: 80px; font-size: 0.6rem; } }
+        :root { --verde: #1b5e20; --oro: #c6a700; --negro: #0a0a0a; --gris: #f4f4f4; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: var(--negro); color: white; display: flex; flex-direction: column; align-items: center; padding: 10px; margin: 0; }
+        .header { text-align: center; margin-bottom: 10px; border-bottom: 2px solid var(--oro); width: 100%; max-width: 900px; padding-bottom: 10px; }
+        #nivel-titulo { color: var(--oro); font-size: 1.3rem; text-transform: uppercase; font-weight: bold; }
+        #cronometro { font-size: 1.6rem; color: #ff5252; font-weight: bold; margin-top: 5px; }
+        .tablero { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; max-width: 1000px; background: #1a1a1a; padding: 15px; border-radius: 10px; border: 1px solid #333; }
+        .carta { width: 150px; height: 90px; background: var(--verde); border: 1px solid rgba(255,255,255,0.2); display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 0.72rem; font-weight: 600; text-align: center; border-radius: 4px; padding: 5px; transition: 0.2s; overflow: hidden; box-shadow: 2px 2px 5px rgba(0,0,0,0.5); }
+        .carta.volteada { background: var(--gris); color: black; border: 2px solid var(--oro); }
+        .carta.correcta { visibility: hidden; opacity: 0; transition: 0.5s; }
+        #mensaje-nivel { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; color: black; padding: 40px; border-radius: 8px; text-align: center; z-index: 1000; border: 5px solid var(--oro); box-shadow: 0 0 100px rgba(0,0,0,0.9); width: 80%; max-width: 400px; }
+        button { background: var(--negro); color: var(--oro); border: 2px solid var(--oro); padding: 15px 30px; font-weight: bold; cursor: pointer; border-radius: 4px; text-transform: uppercase; margin-top: 20px; width: 100%; }
+        button:hover { background: var(--oro); color: black; }
+        @media (max-width: 900px) { .tablero { grid-template-columns: repeat(4, 1fr); } .carta { width: 100px; height: 80px; font-size: 0.65rem; } }
     </style>
 </head>
 <body>
-    <div id="nivel-titulo">Nivel 1: Elementos</div>
-    <div id="cronometro">00:00</div>
+    <div class="header">
+        <div id="nivel-titulo">Cargando Evaluación...</div>
+        <div id="cronometro">00:00</div>
+    </div>
     <div class="tablero" id="tablero"></div>
     <div id="mensaje-nivel">
-        <h2 id="msg-h2">¡NIVEL COMPLETADO!</h2>
+        <h2 id="msg-h2">¡NIVEL SUPERADO!</h2>
+        <p id="p-nota">Calificación parcial: +1.0</p>
         <p id="tiempo-final"></p>
-        <button id="btn-siguiente" onclick="siguienteNivel()">SIGUIENTE TEMA</button>
+        <button id="btn-siguiente" onclick="siguienteNivel()">Siguiente Examen</button>
     </div>
 
     <script>
         const niveles = [
-            { t: "Nivel 1: Elementos", p: [{id:1,c:"Silbato"},{id:1,c:"Autoridad"},{id:2,c:"Conos"},{id:2,c:"Límites"},{id:3,c:"Balón"},{id:3,c:"Técnica"},{id:4,c:"Pizarra"},{id:4,c:"Táctica"},{id:5,c:"Petos"},{id:5,c:"Equipos"},{id:6,c:"Vallas"},{id:6,c:"Salto"},{id:7,c:"Crono"},{id:7,c:"Tiempo"},{id:8,c:"Escalera"},{id:8,c:"Agilidad"},{id:9,c:"Pesas"},{id:9,c:"Fuerza"},{id:10,c:"Cinta"},{id:10,c:"Medida"},{id:11,c:"Estaca"},{id:11,c:"Regate"},{id:12,c:"Banda"},{id:12,c:"Tensión"},{id:13,c:"Mata"},{id:13,c:"Suelo"},{id:14,c:"Arnés"},{id:14,c:"Potencia"},{id:15,c:"Rodillo"},{id:15,c:"Masaje"}]},
-            { t: "Nivel 2: Árbitros", p: [{id:1,c:"Meta"},{id:1,c:"Suelo"},{id:2,c:"Esquina"},{id:2,c:"Córner"},{id:3,c:"Libre Dir"},{id:3,c:"Horizontal"},{id:4,c:"Libre Ind"},{id:4,c:"Arriba"},{id:5,c:"Ventaja"},{id:5,c:"Brazos"},{id:6,c:"Penalti"},{id:6,c:"Punto"},{id:7,c:"VAR"},{id:7,c:"TV"},{id:8,c:"Roja"},{id:8,c:"Fuera"},{id:9,c:"Amarilla"},{id:9,c:"Aviso"},{id:10,c:"Offside"},{id:10,c:"Bandera"},{id:11,c:"Cambio"},{id:11,c:"Número"},{id:12,c:"Mano"},{id:12,c:"Falta"},{id:13,c:"Final"},{id:13,c:"Pito"},{id:14,c:"Banda"},{id:14,c:"Lateral"},{id:15,c:"Bote"},{id:15,c:"Tierra"}]},
-            { t: "Nivel 3: Anatomía", p: [{id:1,c:"Fémur"},{id:1,c:"Muslo"},{id:2,c:"Bíceps"},{id:2,c:"Brazo"},{id:3,c:"Rótula"},{id:3,c:"Rodilla"},{id:4,c:"Tibia"},{id:4,c:"Pierna"},{id:5,c:"Cráneo"},{id:5,c:"Cabeza"},{id:6,c:"Radio"},{id:6,c:"Mano"},{id:7,c:"Dorsal"},{id:7,c:"Espalda"},{id:8,c:"Glúteo"},{id:8,c:"Cola"},{id:9,c:"Pecho"},{id:9,c:"Pectoral"},{id:10,c:"Hombro"},{id:10,c:"Deltoides"},{id:11,c:"Húmero"},{id:11,c:"Hueso"},{id:12,c:"Costilla"},{id:12,c:"Torax"},{id:13,c:"Gemelo"},{id:13,c:"Tobillo"},{id:14,c:"Falange"},{id:14,c:"Dedo"},{id:15,c:"Abdomen"},{id:15,c:"Core"}]},
-            { t: "Nivel 4: Físico", p: [{id:1,c:"Resistencia"},{id:1,c:"Fondo"},{id:2,c:"Velocidad"},{id:2,c:"Sprint"},{id:3,c:"Fuerza"},{id:3,c:"Empuje"},{id:4,c:"Flexo"},{id:4,c:"Elástico"},{id:5,c:"Equilibrio"},{id:5,c:"Caída"},{id:6,c:"Potencia"},{id:6,c:"Salto"},{id:7,c:"Ritmo"},{id:7,c:"Latido"},{id:8,c:"Reflejo"},{id:8,c:"Reacción"},{id:9,c:"Agilidad"},{id:9,c:"Giro"},{id:10,c:"Coordina"},{id:10,c:"Pies"},{id:11,c:"Mente"},{id:11,c:"Enfoque"},{id:12,c:"Pulso"},{id:12,c:"Oxígeno"},{id:13,c:"Calmar"},{id:13,c:"Reposo"},{id:14,c:"Carga"},{id:14,c:"Peso"},{id:15,c:"Esfuerzo"},{id:15,c:"Fatiga"}]},
-            { t: "Nivel 5: Técnica", p: [{id:1,c:"Pase"},{id:1,c:"Bota"},{id:2,c:"Remate"},{id:2,c:"Arco"},{id:3,c:"Dribling"},{id:3,c:"Finta"},{id:4,c:"Centro"},{id:4,c:"Área"},{id:5,c:"Control"},{id:5,c:"Parada"},{id:6,c:"Volea"},{id:6,c:"Vuelo"},{id:7,c:"Pared"},{id:7,c:"Doble"},{id:8,c:"Chilena"},{id:8,c:"Golazo"},{id:9,c:"Saque"},{id:9,c:"Inicio"},{id:10,c:"Entrada"},{id:10,c:"Robo"},{id:11,c:"Desmarque"},{id:11,c:"Libre"},{id:12,c:"Tiro"},{id:12,c:"Efecto"},{id:13,c:"Gesto"},{id:13,c:"Postura"},{id:14,c:"Apoyo"},{id:14,c:"Socio"},{id:15,c:"Táctica"},{id:15,c:"Plan"}]}
+            { t: "Nivel 1: Metodología y Planificación", p: [{id:1,c:"Supercompensación"},{id:1,c:"Adaptación Post-Esfuerzo"},{id:2,c:"Microciclo de Choque"},{id:2,c:"Máxima Intensidad Semanal"},{id:3,c:"Carga Externa"},{id:3,c:"Magnitud Física (Kg/Km)"},{id:4,c:"Carga Interna"},{id:4,c:"Respuesta Orgánica (FC/VPE)"},{id:5,c:"VAM"},{id:5,c:"Velocidad Aeróbica Máxima"},{id:6,c:"Pliometría"},{id:6,c:"Ciclo Estiramiento-Acortamiento"},{id:7,c:"Principio de Especificidad"},{id:7,c:"Similitud al Gesto Competitivo"},{id:8,c:"Mesociclo de Acumulación"},{id:8,c:"Base de Volumen Elevado"},{id:9,c:"Densidad del Entrenamiento"},{id:9,c:"Relación Trabajo-Pausa"},{id:10,c:"Tapering"},{id:10,c:"Puesta a Punto Competitiva"},{id:11,c:"Escala de Borg"},{id:11,c:"Esfuerzo Percibido"},{id:12,c:"Fuerza Explosiva"},{id:12,c:"RFD (Rate of Force Development)"},{id:13,c:"Periodización"},{id:13,c:"Estructura del Macrociclo"},{id:14,c:"Entrenamiento Concurrente"},{id:14,c:"Fuerza y Resistencia en Sesión"},{id:15,c:"Vatios (Watts)"},{id:15,c:"Medida de Potencia Mecánica"}]},
+            { t: "Nivel 2: Reglamento FIFA Avanzado", p: [{id:1,c:"DOGSO"},{id:1,c:"Impedir Gol Manifiesto"},{id:2,c:"Protocolo VAR"},{id:2,c:"Error Claro y Manifiesto"},{id:3,c:"Tiro Libre Indirecto"},{id:3,c:"Juego Peligroso sin Contacto"},{id:4,c:"Ley de Ventaja"},{id:4,c:"Criterio de Fluidez"},{id:5,c:"Fuera de Juego"},{id:5,c:"Interferencia en el Adversario"},{id:6,c:"Conducta Violenta"},{id:6,c:"Expulsión (Roja Directa)"},{id:7,c:"Temeridad"},{id:7,c:"Amonestación (Amarilla)"},{id:8,c:"Mano Accidental"},{id:8,c:"No Sancionable en Defensa"},{id:9,c:"Sustitución por Conmoción"},{id:9,c:"Cambio Extra Reglamentario"},{id:10,c:"Balón a Tierra"},{id:10,c:"Interrupción Externa"},{id:11,c:"Regla 14"},{id:11,c:"Ejecución de Penal"},{id:12,c:"Cuarto Árbitro"},{id:12,c:"Gestión Administrativa"},{id:13,c:"Área de Meta"},{id:13,c:"Protección del Guardameta"},{id:14,c:"Equipamiento"},{id:14,c:"Canilleras y Seguridad"},{id:15,c:"Tiempo de Adición"},{id:15,c:"Compensación de Pérdidas"}]},
+            { t: "Nivel 3: Biomecánica y Kinesiología", p: [{id:1,c:"Plano Sagital"},{id:1,c:"Eje Mediolateral (Flexión)"},{id:2,c:"Isometría"},{id:2,c:"Tensión sin Desplazamiento"},{id:3,c:"Contracción Excéntrica"},{id:3,c:"Alargamiento bajo Tensión"},{id:4,c:"Cadena Cinética Cerrada"},{id:4,c:"Apoyo Distal Fijo"},{id:5,c:"Manguito Rotador"},{id:5,c:"Estabilidad Glenohumeral"},{id:6,c:"LCA (Ligamento)"},{id:6,c:"Estabilidad Anterior Rodilla"},{id:7,c:"Propiocepción"},{id:7,c:"Mecanorreceptores Musculares"},{id:8,c:"Palanca de 3er Grado"},{id:8,c:"Mayoría de Articulaciones"},{id:9,c:"Torque"},{id:9,c:"Momento de Fuerza"},{id:10,c:"Agonista"},{id:10,c:"Músculo Motor Primario"},{id:11,c:"Antagonista"},{id:11,c:"Músculo que se Elonga"},{id:12,c:"Fascia Plantar"},{id:12,c:"Amortiguación del Arco"},{id:13,c:"Eje Anteroposterior"},{id:13,c:"Movimientos de Abducción"},{id:14,c:"Sinartrosis"},{id:14,c:"Articulaciones Inmóviles"},{id:15,c:"Vasto Medial"},{id:15,c:"Guía de la Patela"}]},
+            { t: "Nivel 4: Fisiología del Ejercicio", p: [{id:1,c:"VO2 Máximo"},{id:1,c:"Capacidad Aeróbica Límite"},{id:2,c:"Glucólisis Anaeróbica"},{id:2,c:"Vía de los Fosfágenos"},{id:3,c:"Umbral de Lactato"},{id:3,c:"Punto de Deflexión de FC"},{id:4,c:"Fibras Tipo I"},{id:4,c:"Contracción Lenta (Oxidativas)"},{id:5,c:"EPOC"},{id:5,c:"Consumo Oxígeno Post-Esfuerzo"},{id:6,c:"Gasto Cardíaco"},{id:6,c:"Volumen Sistólico x FC"},{id:7,c:"Mioglobina"},{id:7,c:"Transporte Oxígeno Muscular"},{id:8,c:"Mitocondrias"},{id:8,c:"Respiración Celular"},{id:9,c:"Ciclo de Cori"},{id:9,c:"Lactato a Glucosa (Hígado)"},{id:10,c:"Catecolaminas"},{id:10,c:"Adrenalina y Noradrenalina"},{id:11,c:"Glucógeno"},{id:11,c:"Reserva de Hidratos"},{id:12,c:"Hemoglobina"},{id:12,c:"Transporte Oxígeno Sangre"},{id:13,c:"Homeostasis"},{id:13,c:"Equilibrio del Medio Interno"},{id:14,c:"Vasodilatación"},{id:14,c:"Aumento del Flujo Periférico"},{id:15,c:"Acidosis Metabólica"},{id:15,c:"Descenso del pH Muscular"}]},
+            { t: "Nivel 5: Psicología y Pedagogía", p: [{id:1,c:"Feedback Intrínseco"},{id:1,c:"Sensación del propio Gesto"},{id:2,c:"Feedback Extrínseco"},{id:2,c:"Corrección del Entrenador"},{id:3,c:"Atención Selectiva"},{id:3,c:"Foco en Estímulos Relevantes"},{id:4,c:"Motivación Intrínseca"},{id:4,c:"Placer por la Actividad"},{id:5,c:"Autoeficacia"},{id:5,c:"Creencia en Capacidad Propia"},{id:6,c:"Estado de Flow"},{id:6,c:"Inmersión Total en Tarea"},{id:7,c:"Aprendizaje Significativo"},{id:7,c:"Conexión con Saberes Previos"},{id:8,c:"Visualización"},{id:8,c:"Ensayo Mental del Gesto"},{id:9,c:"Liderazgo Autocrático"},{id:9,c:"Control Centralizado de Decisión"},{id:10,c:"Cohesión Grupal"},{id:10,c:"Unión para Objetivo Común"},{id:11,c:"Burnout"},{id:11,c:"Agotamiento Psicológico"},{id:12,c:"Transferencia Positiva"},{id:12,c:"Habilidad que Ayuda a Otra"},{id:13,c:"Estilo de Mando Directo"},{id:13,c:"Instrucción Repetitiva"},{id:14,c:"Descubrimiento Guiado"},{id:14,c:"El Alumno resuelve el Problema"},{id:15,c:"Ansiedad Competitiva"},{id:15,c:"Estrés Pre-Partido"}]}
         ];
 
         let nivelActual = 0, elegidas = [], aciertos = 0, segs = 0, timer, andando = false;
@@ -44,16 +49,16 @@
             document.getElementById('nivel-titulo').innerText = niveles[nivelActual].t;
             const mazo = [...niveles[nivelActual].p].sort(() => Math.random() - 0.5);
             mazo.forEach(p => {
-                const div = document.createElement('div'); div.className = 'carta'; div.innerText = "⚽";
+                const div = document.createElement('div'); div.className = 'carta'; div.innerText = "UNIV";
                 div.onclick = () => {
                     if(!andando) { timer = setInterval(() => { segs++; document.getElementById('cronometro').innerText = Math.floor(segs/60).toString().padStart(2,'0') + ":" + (segs%60).toString().padStart(2,'0'); }, 1000); andando = true; }
                     if(elegidas.length < 2 && !div.classList.contains('volteada')) {
                         div.classList.add('volteada'); div.innerText = p.c; elegidas.push({div, p});
                         if(elegidas.length === 2) {
                             if(elegidas[0].p.id === elegidas[1].p.id) {
-                                setTimeout(() => { elegidas.forEach(e => e.div.classList.add('correcta')); elegidas = []; aciertos++; if(aciertos === 15) ganar(); }, 500);
+                                setTimeout(() => { elegidas.forEach(e => e.div.classList.add('correcta')); elegidas = []; aciertos++; if(aciertos === 15) ganar(); }, 400);
                             } else {
-                                setTimeout(() => { elegidas.forEach(e => { e.div.classList.remove('volteada'); e.div.innerText = "⚽"; }); elegidas = []; }, 800);
+                                setTimeout(() => { elegidas.forEach(e => { e.div.classList.remove('volteada'); e.div.innerText = "UNIV"; }); elegidas = []; }, 800);
                             }
                         }
                     }
@@ -62,8 +67,8 @@
             });
         }
         function ganar() {
-            clearInterval(timer); document.getElementById('tiempo-final').innerText = "Tiempo: " + document.getElementById('cronometro').innerText;
-            if(nivelActual === 4) { document.getElementById('msg-h2').innerText = "¡MARATÓN COMPLETADA!"; document.getElementById('btn-siguiente').innerText = "REINICIAR"; }
+            clearInterval(timer); document.getElementById('tiempo-final').innerText = "Tiempo de ejecución: " + document.getElementById('cronometro').innerText;
+            if(nivelActual === 4) { document.getElementById('msg-h2').innerText = "¡EXAMEN FINAL APROBADO!"; document.getElementById('p-nota').innerText = "NOTA FINAL: 5.0"; document.getElementById('btn-siguiente').innerText = "REINICIAR"; }
             document.getElementById('mensaje-nivel').style.display = 'block';
         }
         function siguienteNivel() {
