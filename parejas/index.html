@@ -3,237 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Juego de Parejas Deportivas</title>
+    <title>Maratón de Memoria Deportiva</title>
     <style>
-        :root {
-            --verde-campo: #2e7d32;
-            --amarillo-seleccion: #ffeb3b;
-            --blanco: #ffffff;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #1a1a1a;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        #cronometro {
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--amarillo-seleccion);
-            margin-bottom: 10px;
-        }
-
-        .tablero {
-            display: grid;
-            grid-template-columns: repeat(6, 100px);
-            grid-gap: 10px;
-            background-color: #004d00;
-            padding: 15px;
-            border: 5px solid #000;
-            border-radius: 10px;
-        }
-
-        .carta {
-            width: 100px;
-            height: 100px;
-            background-color: var(--verde-campo);
-            border: 2px solid white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: bold;
-            text-align: center;
-            padding: 5px;
-            box-sizing: border-box;
-            user-select: none;
-            border-radius: 5px;
-        }
-
-        .carta.volteada {
-            background-color: var(--blanco);
-            color: black;
-        }
-
-        .carta.seleccionada {
-            border-color: var(--amarillo-seleccion);
-            box-shadow: 0 0 10px var(--amarillo-seleccion);
-        }
-
-        .carta.oculta {
-            visibility: hidden;
-        }
-
-        #mensaje-victoria {
-            display: none;
-            margin-top: 20px;
-            padding: 20px;
-            background-color: var(--amarillo-seleccion);
-            color: black;
-            border-radius: 10px;
-            text-align: center;
-            font-weight: bold;
-        }
+        :root { --verde: #2e7d32; --oro: #ffeb3b; --blanco: #ffffff; --negro: #1a1a1a; }
+        body { font-family: 'Arial Black', sans-serif; background-color: var(--negro); color: white; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
+        #nivel-titulo { color: var(--oro); font-size: 1.5rem; text-transform: uppercase; margin-bottom: 10px; }
+        #cronometro { font-size: 2rem; color: var(--oro); background: #000; padding: 5px 25px; border-radius: 50px; border: 2px solid var(--oro); margin-bottom: 20px; }
+        .tablero { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; max-width: 95vw; background: #004d00; padding: 15px; border: 5px solid #000; border-radius: 15px; }
+        .carta { width: 100px; height: 100px; background: var(--verde); border: 2px solid white; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 0.75rem; font-weight: bold; text-align: center; border-radius: 8px; user-select: none; }
+        .carta.volteada { background: var(--blanco); color: black; }
+        .carta.correcta { background: #81c784; border-color: #81c784; color: white; cursor: default; visibility: hidden; }
+        #mensaje-nivel { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--oro); color: black; padding: 40px; border-radius: 20px; text-align: center; box-shadow: 0 0 50px rgba(0,0,0,0.8); z-index: 100; border: 5px solid black; }
+        button { background: black; color: white; border: none; padding: 15px 30px; font-family: 'Arial Black'; cursor: pointer; border-radius: 10px; margin-top: 20px; }
+        @media (max-width: 600px) { .tablero { grid-template-columns: repeat(4, 1fr); } .carta { width: 80px; height: 80px; font-size: 0.6rem; } }
     </style>
 </head>
 <body>
-
-    <div class="header">
-        <h1>Entrenamiento de Memoria Táctica</h1>
-        <div id="cronometro">Tiempo: 00:00</div>
-    </div>
-
+    <div id="nivel-titulo">Nivel 1: Elementos</div>
+    <div id="cronometro">00:00</div>
     <div class="tablero" id="tablero"></div>
-
-    <div id="mensaje-victoria">
-        <h2>¡Reto Completado!</h2>
+    <div id="mensaje-nivel">
+        <h2 id="msg-h2">¡NIVEL COMPLETADO!</h2>
         <p id="tiempo-final"></p>
-        <p>Toma la captura de pantalla ahora para enviarla en la Actividad 2.</p>
+        <button id="btn-siguiente" onclick="siguienteNivel()">SIGUIENTE TEMA</button>
     </div>
 
     <script>
-        const datosParejas = [
-            { id: 1, contenido: "Silbato", tipo: "img" }, { id: 1, contenido: "Autoridad", tipo: "txt" },
-            { id: 2, contenido: "Cronómetro", tipo: "img" }, { id: 2, contenido: "Tiempo", tipo: "txt" },
-            { id: 3, contenido: "Conos", tipo: "img" }, { id: 3, contenido: "Delimitación", tipo: "txt" },
-            { id: 4, contenido: "Escalera", tipo: "img" }, { id: 4, contenido: "Coordinación", tipo: "txt" },
-            { id: 5, contenido: "Vallas", tipo: "img" }, { id: 5, contenido: "Salto", tipo: "txt" },
-            { id: 6, contenido: "Balón", tipo: "img" }, { id: 6, contenido: "Técnica", tipo: "txt" },
-            { id: 7, contenido: "Mancuernas", tipo: "img" }, { id: 7, contenido: "Fuerza", tipo: "txt" },
-            { id: 8, contenido: "Cinta Métrica", tipo: "img" }, { id: 8, contenido: "Distancia", tipo: "txt" },
-            { id: 9, contenido: "Estaca", tipo: "img" }, { id: 9, contenido: "Regate", tipo: "txt" },
-            { id: 10, contenido: "Pizarra", tipo: "img" }, { id: 10, contenido: "Estrategia", tipo: "txt" },
-            { id: 11, contenido: "Petos", tipo: "img" }, { id: 11, contenido: "Equipos", tipo: "txt" },
-            { id: 12, contenido: "Bandas", tipo: "img" }, { id: 12, contenido: "Resistencia", tipo: "txt" },
-            { id: 13, contenido: "Colchoneta", tipo: "img" }, { id: 13, contenido: "Flexibilidad", tipo: "txt" },
-            { id: 14, contenido: "Paracaídas", tipo: "img" }, { id: 14, contenido: "Potencia", tipo: "txt" },
-            { id: 15, contenido: "Rodillo", tipo: "img" }, { id: 15, contenido: "Recuperación", tipo: "txt" }
+        const niveles = [
+            { t: "Nivel 1: Elementos", p: [{id:1,c:"Silbato"},{id:1,c:"Autoridad"},{id:2,c:"Conos"},{id:2,c:"Límites"},{id:3,c:"Balón"},{id:3,c:"Técnica"},{id:4,c:"Pizarra"},{id:4,c:"Táctica"},{id:5,c:"Petos"},{id:5,c:"Equipos"},{id:6,c:"Vallas"},{id:6,c:"Salto"},{id:7,c:"Crono"},{id:7,c:"Tiempo"},{id:8,c:"Escalera"},{id:8,c:"Agilidad"},{id:9,c:"Pesas"},{id:9,c:"Fuerza"},{id:10,c:"Cinta"},{id:10,c:"Medida"},{id:11,c:"Estaca"},{id:11,c:"Regate"},{id:12,c:"Banda"},{id:12,c:"Tensión"},{id:13,c:"Mata"},{id:13,c:"Suelo"},{id:14,c:"Arnés"},{id:14,c:"Potencia"},{id:15,c:"Rodillo"},{id:15,c:"Masaje"}]},
+            { t: "Nivel 2: Árbitros", p: [{id:1,c:"Meta"},{id:1,c:"Suelo"},{id:2,c:"Esquina"},{id:2,c:"Córner"},{id:3,c:"Libre Dir"},{id:3,c:"Horizontal"},{id:4,c:"Libre Ind"},{id:4,c:"Arriba"},{id:5,c:"Ventaja"},{id:5,c:"Brazos"},{id:6,c:"Penalti"},{id:6,c:"Punto"},{id:7,c:"VAR"},{id:7,c:"TV"},{id:8,c:"Roja"},{id:8,c:"Fuera"},{id:9,c:"Amarilla"},{id:9,c:"Aviso"},{id:10,c:"Offside"},{id:10,c:"Bandera"},{id:11,c:"Cambio"},{id:11,c:"Número"},{id:12,c:"Mano"},{id:12,c:"Falta"},{id:13,c:"Final"},{id:13,c:"Pito"},{id:14,c:"Banda"},{id:14,c:"Lateral"},{id:15,c:"Bote"},{id:15,c:"Tierra"}]},
+            { t: "Nivel 3: Anatomía", p: [{id:1,c:"Fémur"},{id:1,c:"Muslo"},{id:2,c:"Bíceps"},{id:2,c:"Brazo"},{id:3,c:"Rótula"},{id:3,c:"Rodilla"},{id:4,c:"Tibia"},{id:4,c:"Pierna"},{id:5,c:"Cráneo"},{id:5,c:"Cabeza"},{id:6,c:"Radio"},{id:6,c:"Mano"},{id:7,c:"Dorsal"},{id:7,c:"Espalda"},{id:8,c:"Glúteo"},{id:8,c:"Cola"},{id:9,c:"Pecho"},{id:9,c:"Pectoral"},{id:10,c:"Hombro"},{id:10,c:"Deltoides"},{id:11,c:"Húmero"},{id:11,c:"Hueso"},{id:12,c:"Costilla"},{id:12,c:"Torax"},{id:13,c:"Gemelo"},{id:13,c:"Tobillo"},{id:14,c:"Falange"},{id:14,c:"Dedo"},{id:15,c:"Abdomen"},{id:15,c:"Core"}]},
+            { t: "Nivel 4: Físico", p: [{id:1,c:"Resistencia"},{id:1,c:"Fondo"},{id:2,c:"Velocidad"},{id:2,c:"Sprint"},{id:3,c:"Fuerza"},{id:3,c:"Empuje"},{id:4,c:"Flexo"},{id:4,c:"Elástico"},{id:5,c:"Equilibrio"},{id:5,c:"Caída"},{id:6,c:"Potencia"},{id:6,c:"Salto"},{id:7,c:"Ritmo"},{id:7,c:"Latido"},{id:8,c:"Reflejo"},{id:8,c:"Reacción"},{id:9,c:"Agilidad"},{id:9,c:"Giro"},{id:10,c:"Coordina"},{id:10,c:"Pies"},{id:11,c:"Mente"},{id:11,c:"Enfoque"},{id:12,c:"Pulso"},{id:12,c:"Oxígeno"},{id:13,c:"Calmar"},{id:13,c:"Reposo"},{id:14,c:"Carga"},{id:14,c:"Peso"},{id:15,c:"Esfuerzo"},{id:15,c:"Fatiga"}]},
+            { t: "Nivel 5: Técnica", p: [{id:1,c:"Pase"},{id:1,c:"Bota"},{id:2,c:"Remate"},{id:2,c:"Arco"},{id:3,c:"Dribling"},{id:3,c:"Finta"},{id:4,c:"Centro"},{id:4,c:"Área"},{id:5,c:"Control"},{id:5,c:"Parada"},{id:6,c:"Volea"},{id:6,c:"Vuelo"},{id:7,c:"Pared"},{id:7,c:"Doble"},{id:8,c:"Chilena"},{id:8,c:"Golazo"},{id:9,c:"Saque"},{id:9,c:"Inicio"},{id:10,c:"Entrada"},{id:10,c:"Robo"},{id:11,c:"Desmarque"},{id:11,c:"Libre"},{id:12,c:"Tiro"},{id:12,c:"Efecto"},{id:13,c:"Gesto"},{id:13,c:"Postura"},{id:14,c:"Apoyo"},{id:14,c:"Socio"},{id:15,c:"Táctica"},{id:15,c:"Plan"}]}
         ];
 
-        let cartasVolteadas = [];
-        let parejasEncontradas = 0;
-        let segundos = 0;
-        let intervaloCronometro;
-        let juegoIniciado = false;
+        let nivelActual = 0, elegidas = [], aciertos = 0, segs = 0, timer, andando = false;
 
-        function iniciarCronometro() {
-            intervaloCronometro = setInterval(() => {
-                segundos++;
-                let min = Math.floor(segundos / 60).toString().padStart(2, '0');
-                let seg = (segundos % 60).toString().padStart(2, '0');
-                document.getElementById('cronometro').innerText = `Tiempo: ${min}:${seg}`;
-            }, 1000);
-        }
-
-        function crearTablero() {
-            const tablero = document.getElementById('tablero');
-            const cartasMezcladas = datosParejas.sort(() => Math.random() - 0.5);
-
-            cartasMezcladas.forEach((dato, indice) => {
-                const carta = document.createElement('div');
-                carta.classList.add('carta');
-                carta.dataset.id = dato.id;
-                carta.dataset.indice = indice;
-                carta.innerText = "?"; // Oculto al inicio
-                carta.addEventListener('click', voltearCarta);
-                tablero.appendChild(carta);
+        function iniciar() {
+            const tab = document.getElementById('tablero'); tab.innerHTML = '';
+            document.getElementById('nivel-titulo').innerText = niveles[nivelActual].t;
+            const mazo = [...niveles[nivelActual].p].sort(() => Math.random() - 0.5);
+            mazo.forEach(p => {
+                const div = document.createElement('div'); div.className = 'carta'; div.innerText = "⚽";
+                div.onclick = () => {
+                    if(!andando) { timer = setInterval(() => { segs++; document.getElementById('cronometro').innerText = Math.floor(segs/60).toString().padStart(2,'0') + ":" + (segs%60).toString().padStart(2,'0'); }, 1000); andando = true; }
+                    if(elegidas.length < 2 && !div.classList.contains('volteada')) {
+                        div.classList.add('volteada'); div.innerText = p.c; elegidas.push({div, p});
+                        if(elegidas.length === 2) {
+                            if(elegidas[0].p.id === elegidas[1].p.id) {
+                                setTimeout(() => { elegidas.forEach(e => e.div.classList.add('correcta')); elegidas = []; aciertos++; if(aciertos === 15) ganar(); }, 500);
+                            } else {
+                                setTimeout(() => { elegidas.forEach(e => { e.div.classList.remove('volteada'); e.div.innerText = "⚽"; }); elegidas = []; }, 800);
+                            }
+                        }
+                    }
+                };
+                tab.appendChild(div);
             });
         }
-
-        function voltearCarta() {
-            if (!juegoIniciado) {
-                iniciarCronometro();
-                juegoIniciado = true;
-            }
-
-            const cartaSeleccionada = this;
-
-            if (cartasVolteadas.length < 2 && !cartaSeleccionada.classList.contains('volteada')) {
-                cartaSeleccionada.classList.add('volteada', 'seleccionada');
-                cartaSeleccionada.innerText = datosParejas.find(d => d.id == cartaSeleccionada.dataset.id && 
-                    (cartasVolteadas.length === 0 || d.contenido !== cartasVolteadas[0].innerText)).contenido; 
-                // Nota: He simplificado la lógica del texto para este ejemplo.
-                
-                // Corrección para mostrar el texto correcto basado en el orden mezclado:
-                const infoCorrecta = buscarContenido(cartaSeleccionada.dataset.indice);
-                cartaSeleccionada.innerText = infoCorrecta;
-
-                cartasVolteadas.push(cartaSeleccionada);
-
-                if (cartasVolteadas.length === 2) {
-                    comprobarPareja();
-                }
-            }
+        function ganar() {
+            clearInterval(timer); document.getElementById('tiempo-final').innerText = "Tiempo: " + document.getElementById('cronometro').innerText;
+            if(nivelActual === 4) { document.getElementById('msg-h2').innerText = "¡MARATÓN COMPLETADA!"; document.getElementById('btn-siguiente').innerText = "REINICIAR"; }
+            document.getElementById('mensaje-nivel').style.display = 'block';
         }
-
-        function buscarContenido(indiceOriginal) {
-            // Esta función asegura que mostramos el texto que corresponde a esa carta mezclada
-            return document.getElementById('tablero').children[indiceOriginal].dataset.id; 
-            // Para este ejemplo, mostraré el ID. En producción, aquí irían tus imágenes.
+        function siguienteNivel() {
+            document.getElementById('mensaje-nivel').style.display = 'none';
+            if(nivelActual < 4) { nivelActual++; aciertos = 0; segs = 0; andando = false; document.getElementById('cronometro').innerText = "00:00"; iniciar(); }
+            else location.reload();
         }
-
-        // Re-ajuste de la lógica visual para que sea funcional sin imágenes externas todavía:
-        function voltearCartaMejorada() {
-            if (!juegoIniciado) { iniciarCronometro(); juegoIniciado = true; }
-            if (cartasVolteadas.length < 2 && !this.classList.contains('volteada')) {
-                const idx = Array.from(this.parentNode.children).indexOf(this);
-                this.classList.add('volteada', 'seleccionada');
-                this.innerText = mezclarGlobal[idx].contenido;
-                cartasVolteadas.push(this);
-                if (cartasVolteadas.length === 2) setTimeout(comprobarPareja, 800);
-            }
-        }
-
-        const mezclarGlobal = datosParejas.sort(() => Math.random() - 0.5);
-
-        function crearTableroReal() {
-            const tablero = document.getElementById('tablero');
-            mezclarGlobal.forEach((dato) => {
-                const carta = document.createElement('div');
-                carta.classList.add('carta');
-                carta.dataset.id = dato.id;
-                carta.innerText = "⚽"; 
-                carta.onclick = voltearCartaMejorada;
-                tablero.appendChild(carta);
-            });
-        }
-
-        function comprobarPareja() {
-            const [c1, c2] = cartasVolteadas;
-            if (c1.dataset.id === c2.dataset.id) {
-                c1.classList.replace('seleccionada', 'volteada');
-                c2.classList.replace('seleccionada', 'volteada');
-                c1.style.backgroundColor = "#81c784";
-                c2.style.backgroundColor = "#81c784";
-                parejasEncontradas++;
-                if (parejasEncontradas === 15) finalizarJuego();
-            } else {
-                c1.classList.remove('volteada', 'seleccionada');
-                c2.classList.remove('volteada', 'seleccionada');
-                c1.innerText = "⚽";
-                c2.innerText = "⚽";
-            }
-            cartasVolteadas = [];
-        }
-
-        function finalizarJuego() {
-            clearInterval(intervaloCronometro);
-            document.getElementById('mensaje-victoria').style.display = 'block';
-            document.getElementById('tiempo-final').innerText = `Tu tiempo total fue: ${document.getElementById('cronometro').innerText}`;
-        }
-
-        crearTableroReal();
+        iniciar();
     </script>
 </body>
 </html>
