@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Parejas Deportivas</title>
+    <style>
+        :root {
+            --verde-campo: #2e7d32;
+            --amarillo-seleccion: #ffeb3b;
+            --blanco: #ffffff;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #cronometro {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--amarillo-seleccion);
+            margin-bottom: 10px;
+        }
+
+        .tablero {
+            display: grid;
+            grid-template-columns: repeat(6, 100px);
+            grid-gap: 10px;
+            background-color: #004d00;
+            padding: 15px;
+            border: 5px solid #000;
+            border-radius: 10px;
+        }
+
+        .carta {
+            width: 100px;
+            height: 100px;
+            background-color: var(--verde-campo);
+            border: 2px solid white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+            padding: 5px;
+            box-sizing: border-box;
+            user-select: none;
+            border-radius: 5px;
+        }
+
+        .carta.volteada {
+            background-color: var(--blanco);
+            color: black;
+        }
+
+        .carta.seleccionada {
+            border-color: var(--amarillo-seleccion);
+            box-shadow: 0 0 10px var(--amarillo-seleccion);
+        }
+
+        .carta.oculta {
+            visibility: hidden;
+        }
+
+        #mensaje-victoria {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background-color: var(--amarillo-seleccion);
+            color: black;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Entrenamiento de Memoria Táctica</h1>
+        <div id="cronometro">Tiempo: 00:00</div>
+    </div>
+
+    <div class="tablero" id="tablero"></div>
+
+    <div id="mensaje-victoria">
+        <h2>¡Reto Completado!</h2>
+        <p id="tiempo-final"></p>
+        <p>Toma la captura de pantalla ahora para enviarla en la Actividad 2.</p>
+    </div>
+
+    <script>
+        const datosParejas = [
+            { id: 1, contenido: "Silbato", tipo: "img" }, { id: 1, contenido: "Autoridad", tipo: "txt" },
+            { id: 2, contenido: "Cronómetro", tipo: "img" }, { id: 2, contenido: "Tiempo", tipo: "txt" },
+            { id: 3, contenido: "Conos", tipo: "img" }, { id: 3, contenido: "Delimitación", tipo: "txt" },
+            { id: 4, contenido: "Escalera", tipo: "img" }, { id: 4, contenido: "Coordinación", tipo: "txt" },
+            { id: 5, contenido: "Vallas", tipo: "img" }, { id: 5, contenido: "Salto", tipo: "txt" },
+            { id: 6, contenido: "Balón", tipo: "img" }, { id: 6, contenido: "Técnica", tipo: "txt" },
+            { id: 7, contenido: "Mancuernas", tipo: "img" }, { id: 7, contenido: "Fuerza", tipo: "txt" },
+            { id: 8, contenido: "Cinta Métrica", tipo: "img" }, { id: 8, contenido: "Distancia", tipo: "txt" },
+            { id: 9, contenido: "Estaca", tipo: "img" }, { id: 9, contenido: "Regate", tipo: "txt" },
+            { id: 10, contenido: "Pizarra", tipo: "img" }, { id: 10, contenido: "Estrategia", tipo: "txt" },
+            { id: 11, contenido: "Petos", tipo: "img" }, { id: 11, contenido: "Equipos", tipo: "txt" },
+            { id: 12, contenido: "Bandas", tipo: "img" }, { id: 12, contenido: "Resistencia", tipo: "txt" },
+            { id: 13, contenido: "Colchoneta", tipo: "img" }, { id: 13, contenido: "Flexibilidad", tipo: "txt" },
+            { id: 14, contenido: "Paracaídas", tipo: "img" }, { id: 14, contenido: "Potencia", tipo: "txt" },
+            { id: 15, contenido: "Rodillo", tipo: "img" }, { id: 15, contenido: "Recuperación", tipo: "txt" }
+        ];
+
+        let cartasVolteadas = [];
+        let parejasEncontradas = 0;
+        let segundos = 0;
+        let intervaloCronometro;
+        let juegoIniciado = false;
+
+        function iniciarCronometro() {
+            intervaloCronometro = setInterval(() => {
+                segundos++;
+                let min = Math.floor(segundos / 60).toString().padStart(2, '0');
+                let seg = (segundos % 60).toString().padStart(2, '0');
+                document.getElementById('cronometro').innerText = `Tiempo: ${min}:${seg}`;
+            }, 1000);
+        }
+
+        function crearTablero() {
+            const tablero = document.getElementById('tablero');
+            const cartasMezcladas = datosParejas.sort(() => Math.random() - 0.5);
+
+            cartasMezcladas.forEach((dato, indice) => {
+                const carta = document.createElement('div');
+                carta.classList.add('carta');
+                carta.dataset.id = dato.id;
+                carta.dataset.indice = indice;
+                carta.innerText = "?"; // Oculto al inicio
+                carta.addEventListener('click', voltearCarta);
+                tablero.appendChild(carta);
+            });
+        }
+
+        function voltearCarta() {
+            if (!juegoIniciado) {
+                iniciarCronometro();
+                juegoIniciado = true;
+            }
+
+            const cartaSeleccionada = this;
+
+            if (cartasVolteadas.length < 2 && !cartaSeleccionada.classList.contains('volteada')) {
+                cartaSeleccionada.classList.add('volteada', 'seleccionada');
+                cartaSeleccionada.innerText = datosParejas.find(d => d.id == cartaSeleccionada.dataset.id && 
+                    (cartasVolteadas.length === 0 || d.contenido !== cartasVolteadas[0].innerText)).contenido; 
+                // Nota: He simplificado la lógica del texto para este ejemplo.
+                
+                // Corrección para mostrar el texto correcto basado en el orden mezclado:
+                const infoCorrecta = buscarContenido(cartaSeleccionada.dataset.indice);
+                cartaSeleccionada.innerText = infoCorrecta;
+
+                cartasVolteadas.push(cartaSeleccionada);
+
+                if (cartasVolteadas.length === 2) {
+                    comprobarPareja();
+                }
+            }
+        }
+
+        function buscarContenido(indiceOriginal) {
+            // Esta función asegura que mostramos el texto que corresponde a esa carta mezclada
+            return document.getElementById('tablero').children[indiceOriginal].dataset.id; 
+            // Para este ejemplo, mostraré el ID. En producción, aquí irían tus imágenes.
+        }
+
+        // Re-ajuste de la lógica visual para que sea funcional sin imágenes externas todavía:
+        function voltearCartaMejorada() {
+            if (!juegoIniciado) { iniciarCronometro(); juegoIniciado = true; }
+            if (cartasVolteadas.length < 2 && !this.classList.contains('volteada')) {
+                const idx = Array.from(this.parentNode.children).indexOf(this);
+                this.classList.add('volteada', 'seleccionada');
+                this.innerText = mezclarGlobal[idx].contenido;
+                cartasVolteadas.push(this);
+                if (cartasVolteadas.length === 2) setTimeout(comprobarPareja, 800);
+            }
+        }
+
+        const mezclarGlobal = datosParejas.sort(() => Math.random() - 0.5);
+
+        function crearTableroReal() {
+            const tablero = document.getElementById('tablero');
+            mezclarGlobal.forEach((dato) => {
+                const carta = document.createElement('div');
+                carta.classList.add('carta');
+                carta.dataset.id = dato.id;
+                carta.innerText = "⚽"; 
+                carta.onclick = voltearCartaMejorada;
+                tablero.appendChild(carta);
+            });
+        }
+
+        function comprobarPareja() {
+            const [c1, c2] = cartasVolteadas;
+            if (c1.dataset.id === c2.dataset.id) {
+                c1.classList.replace('seleccionada', 'volteada');
+                c2.classList.replace('seleccionada', 'volteada');
+                c1.style.backgroundColor = "#81c784";
+                c2.style.backgroundColor = "#81c784";
+                parejasEncontradas++;
+                if (parejasEncontradas === 15) finalizarJuego();
+            } else {
+                c1.classList.remove('volteada', 'seleccionada');
+                c2.classList.remove('volteada', 'seleccionada');
+                c1.innerText = "⚽";
+                c2.innerText = "⚽";
+            }
+            cartasVolteadas = [];
+        }
+
+        function finalizarJuego() {
+            clearInterval(intervaloCronometro);
+            document.getElementById('mensaje-victoria').style.display = 'block';
+            document.getElementById('tiempo-final').innerText = `Tu tiempo total fue: ${document.getElementById('cronometro').innerText}`;
+        }
+
+        crearTableroReal();
+    </script>
+</body>
+</html>
