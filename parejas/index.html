@@ -6,26 +6,50 @@
     <title>Maratón de Conocimiento Deportivo</title>
     <style>
         :root { --verde: #2e7d32; --oro: #ffd600; --negro: #1a1a1a; --blanco: #ffffff; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--negro); color: white; display: flex; flex-direction: column; align-items: center; padding: 15px; margin: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--negro); color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 15px; margin: 0; }
+        
+        /* Pantalla de Inicio */
+        #pantalla-inicio { text-align: center; background: rgba(0,0,0,0.8); padding: 40px; border-radius: 20px; border: 3px solid var(--oro); box-shadow: 0 0 50px rgba(0,0,0,0.9); }
+        #pantalla-inicio h1 { color: var(--oro); font-size: 2.2rem; margin-top: 0; }
+        #pantalla-inicio p { color: var(--blanco); font-size: 1.1rem; max-width: 500px; line-height: 1.6; margin-bottom: 30px; }
+        #btn-iniciar { background: var(--oro); color: var(--negro); border: none; padding: 18px 35px; font-weight: bold; font-size: 1.2rem; cursor: pointer; border-radius: 8px; text-transform: uppercase; transition: 0.3s; }
+        #btn-iniciar:hover { background: var(--blanco); transform: scale(1.05); }
+
+        /* Estilo del Juego (Oculto al inicio) */
+        #juego-contenedor { display: none; flex-direction: column; align-items: center; }
         #nivel-titulo { color: var(--oro); font-size: 1.5rem; margin-bottom: 10px; font-weight: bold; text-align: center; }
-        #cronometro { font-size: 1.8rem; color: var(--oro); border: 2px solid var(--oro); padding: 5px 20px; border-radius: 10px; margin-bottom: 15px; }
-        .tablero { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; max-width: 950px; background: #004d00; padding: 15px; border-radius: 12px; }
-        .carta { width: 140px; height: 80px; background: var(--verde); border: 1px solid white; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 0.8rem; font-weight: bold; text-align: center; border-radius: 6px; padding: 5px; transition: 0.3s; }
+        #cronometro { font-size: 1.8rem; color: var(--oro); border: 2px solid var(--oro); padding: 5px 20px; border-radius: 10px; margin-bottom: 15px; background: black; }
+        .tablero { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; max-width: 950px; background: #004d00; padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); }
+        .carta { width: 140px; height: 80px; background: var(--verde); border: 1px solid white; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 0.8rem; font-weight: bold; text-align: center; border-radius: 6px; padding: 5px; transition: 0.3s; user-select: none; }
         .carta.volteada { background: var(--blanco); color: black; }
         .carta.correcta { visibility: hidden; opacity: 0; }
+        
+        /* Modales (Nivel y Final) */
         #mensaje-nivel { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; color: black; padding: 30px; border-radius: 15px; text-align: center; border: 5px solid var(--oro); z-index: 100; box-shadow: 0 0 50px rgba(0,0,0,0.8); }
-        button { background: var(--negro); color: var(--oro); border: 2px solid var(--oro); padding: 12px 25px; font-weight: bold; cursor: pointer; border-radius: 5px; margin-top: 15px; }
+        .btn-modal { background: var(--negro); color: var(--oro); border: 2px solid var(--oro); padding: 12px 25px; font-weight: bold; cursor: pointer; border-radius: 5px; margin-top: 15px; width: 100%; }
+        .btn-modal:hover { background: var(--oro); color: black; }
+
+        /* Adaptación Móvil */
         @media (max-width: 800px) { .tablero { grid-template-columns: repeat(4, 1fr); } .carta { width: 85px; height: 70px; font-size: 0.65rem; } }
     </style>
 </head>
 <body>
-    <div id="nivel-titulo">Nivel 1: Fundamentos del Entrenamiento</div>
-    <div id="cronometro">00:00</div>
-    <div class="tablero" id="tablero"></div>
-    <div id="mensaje-nivel">
-        <h2 id="msg-h2">¡Nivel Completado!</h2>
-        <p id="p-nota">Puntos: +1.0</p>
-        <button onclick="siguienteNivel()">SIGUIENTE TEMA</button>
+    <div id="pantalla-inicio">
+        <h1>Evaluación de Conocimiento Deportivo</h1>
+        <p>Esta actividad consta de **5 niveles** temáticos. Cada nivel completado te otorgará **+1.0 punto** para tu calificación final. Debes encontrar las 15 parejas de cada nivel para avanzar.</p>
+        <button id="btn-iniciar" onclick="iniciarEvaluacion()">Iniciar Evaluación (5 Niveles)</button>
+    </div>
+
+    <div id="juego-contenedor">
+        <div id="nivel-titulo">Nivel 1: Entrenamiento Deportivo</div>
+        <div id="cronometro">00:00</div>
+        <div class="tablero" id="tablero"></div>
+        <div id="mensaje-nivel">
+            <h2 id="msg-h2">¡Nivel Completado!</h2>
+            <p id="p-nota">Puntos: +1.0</p>
+            <p id="tiempo-final"></p>
+            <button class="btn-modal" id="btn-siguiente" onclick="siguienteNivel()">SIGUIENTE TEMA</button>
+        </div>
     </div>
 
     <script>
@@ -39,12 +63,18 @@
 
         let nivelActual = 0, elegidas = [], aciertos = 0, segs = 0, timer, andando = false;
 
+        function iniciarEvaluacion() {
+            document.getElementById('pantalla-inicio').style.display = 'none';
+            document.getElementById('juego-contenedor').style.display = 'flex';
+            iniciar();
+        }
+
         function iniciar() {
             const tab = document.getElementById('tablero'); tab.innerHTML = '';
             document.getElementById('nivel-titulo').innerText = niveles[nivelActual].t;
             const mazo = [...niveles[nivelActual].p].sort(() => Math.random() - 0.5);
             mazo.forEach(p => {
-                const div = document.createElement('div'); div.className = 'carta'; div.innerText = "EXAMEN";
+                const div = document.createElement('div'); div.className = 'carta'; div.innerText = "⚽";
                 div.onclick = () => {
                     if(!andando) { timer = setInterval(() => { segs++; document.getElementById('cronometro').innerText = Math.floor(segs/60).toString().padStart(2,'0') + ":" + (segs%60).toString().padStart(2,'0'); }, 1000); andando = true; }
                     if(elegidas.length < 2 && !div.classList.contains('volteada')) {
@@ -53,7 +83,7 @@
                             if(elegidas[0].p.id === elegidas[1].p.id) {
                                 setTimeout(() => { elegidas.forEach(e => e.div.classList.add('correcta')); elegidas = []; aciertos++; if(aciertos === 15) ganar(); }, 400);
                             } else {
-                                setTimeout(() => { elegidas.forEach(e => { e.div.classList.remove('volteada'); e.div.innerText = "EXAMEN"; }); elegidas = []; }, 800);
+                                setTimeout(() => { elegidas.forEach(e => { e.div.classList.remove('volteada'); e.div.innerText = "⚽"; }); elegidas = []; }, 800);
                             }
                         }
                     }
@@ -62,16 +92,10 @@
             });
         }
         function ganar() {
-            clearInterval(timer);
-            if(nivelActual === 4) { document.getElementById('msg-h2').innerText = "¡EXAMEN FINALIZADO!"; document.getElementById('p-nota').innerText = "CALIFICACIÓN TOTAL: 5.0"; }
+            clearInterval(timer); document.getElementById('tiempo-final').innerText = "Tiempo: " + document.getElementById('cronometro').innerText;
+            if(nivelActual === 4) { document.getElementById('msg-h2').innerText = "¡EXAMEN FINALIZADO!"; document.getElementById('p-nota').innerText = "CALIFICACIÓN TOTAL: 5.0"; document.getElementById('btn-siguiente').innerText = "REINICIAR TODO"; }
             document.getElementById('mensaje-nivel').style.display = 'block';
         }
         function siguienteNivel() {
             document.getElementById('mensaje-nivel').style.display = 'none';
-            if(nivelActual < 4) { nivelActual++; aciertos = 0; segs = 0; andando = false; document.getElementById('cronometro').innerText = "00:00"; iniciar(); }
-            else location.reload();
-        }
-        iniciar();
-    </script>
-</body>
-</html>
+            if(nivelActual < 4) { nivelActual++; aciertos = 0; segs = 0; andando = false
