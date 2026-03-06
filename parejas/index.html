@@ -6,47 +6,66 @@
     <title>Actividad de Conocimiento Deportivo</title>
     <style>
         :root { --verde: #2e7d32; --oro: #ffd600; --negro: #1a1a1a; --blanco: #ffffff; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--negro); color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 15px; margin: 0; }
-        
-        #pantalla-inicio { text-align: center; background: rgba(0,0,0,0.8); padding: 40px; border-radius: 20px; border: 3px solid var(--oro); box-shadow: 0 0 50px rgba(0,0,0,0.9); display: block; }
-        #pantalla-inicio h1 { color: var(--oro); font-size: 2.2rem; margin-top: 0; }
-        #pantalla-inicio p { color: var(--blanco); font-size: 1.1rem; max-width: 500px; line-height: 1.6; margin-bottom: 30px; }
-        #btn-iniciar { background: var(--oro); color: var(--negro); border: none; padding: 18px 35px; font-weight: bold; font-size: 1.2rem; cursor: pointer; border-radius: 8px; text-transform: uppercase; transition: 0.3s; }
-        #btn-iniciar:hover { background: var(--blanco); transform: scale(1.05); }
-
-        #juego-contenedor { display: none; flex-direction: column; align-items: center; }
-        #nivel-titulo { color: var(--oro); font-size: 1.5rem; margin-bottom: 10px; font-weight: bold; text-align: center; }
-        #cronometro { font-size: 1.8rem; color: var(--oro); border: 2px solid var(--oro); padding: 5px 20px; border-radius: 10px; margin-bottom: 15px; background: black; }
-        .tablero { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; max-width: 950px; background: #004d00; padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); }
-        .carta { width: 140px; height: 80px; background: var(--verde); border: 1px solid white; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 0.8rem; font-weight: bold; text-align: center; border-radius: 6px; padding: 5px; transition: 0.3s; user-select: none; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--negro); color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 15px; margin: 0; }
+        #pantalla-inicio { text-align: center; background: rgba(0,0,0,0.9); padding: 40px; border-radius: 20px; border: 3px solid var(--oro); box-shadow: 0 0 50px rgba(0,0,0,0.9); max-width: 600px; }
+        #pantalla-inicio h1 { color: var(--oro); margin-top: 0; }
+        #btn-iniciar { background: var(--oro); color: var(--negro); border: none; padding: 20px 40px; font-weight: bold; font-size: 1.3rem; cursor: pointer; border-radius: 10px; text-transform: uppercase; margin-top: 20px; }
+        #juego-contenedor { display: none; flex-direction: column; align-items: center; width: 100%; }
+        .tablero { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; background: #004d00; padding: 15px; border-radius: 12px; }
+        .carta { width: 140px; height: 80px; background: var(--verde); border: 1px solid white; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 0.8rem; font-weight: bold; text-align: center; border-radius: 6px; user-select: none; }
         .carta.volteada { background: var(--blanco); color: black; }
         .carta.correcta { visibility: hidden; opacity: 0; }
-        
-        #mensaje-nivel { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; color: black; padding: 30px; border-radius: 15px; text-align: center; border: 5px solid var(--oro); z-index: 100; box-shadow: 0 0 50px rgba(0,0,0,0.8); }
-        .btn-modal { background: var(--negro); color: var(--oro); border: 2px solid var(--oro); padding: 12px 25px; font-weight: bold; cursor: pointer; border-radius: 5px; margin-top: 15px; width: 100%; }
+        #mensaje-nivel { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; color: black; padding: 30px; border-radius: 15px; text-align: center; border: 5px solid var(--oro); z-index: 1000; }
         @media (max-width: 800px) { .tablero { grid-template-columns: repeat(4, 1fr); } .carta { width: 85px; height: 70px; font-size: 0.65rem; } }
     </style>
 </head>
 <body>
     <div id="pantalla-inicio">
         <h1>Actividad de Conocimiento Deportivo</h1>
-        <p>Esta actividad consta de **5 niveles** temáticos. Cada nivel completado te otorgará **+1.0 punto** para tu calificación final. Debes encontrar las 15 parejas de cada nivel para avanzar.</p>
-        <button id="btn-iniciar" onclick="iniciarEvaluacion()">Iniciar Actividad (5 Niveles)</button>
+        <p>Esta actividad consta de **5 niveles** temáticos. Cada nivel completado te otorgará **+1.0 punto** para tu calificación final. Encuentra las 15 parejas de cada nivel.</p>
+        <button id="btn-iniciar">Iniciar Actividad (5 Niveles)</button>
     </div>
 
     <div id="juego-contenedor">
-        <div id="nivel-titulo">Nivel 1: Entrenamiento Deportivo</div>
-        <div id="cronometro">00:00</div>
+        <h2 id="nivel-titulo" style="color:var(--oro)"></h2>
+        <div id="cronometro" style="font-size:1.5rem; margin-bottom:10px; border:1px solid var(--oro); padding:5px 15px;">00:00</div>
         <div class="tablero" id="tablero"></div>
         <div id="mensaje-nivel">
             <h2 id="msg-h2">¡Nivel Completado!</h2>
             <p id="p-nota">Puntos: +1.0</p>
-            <p id="tiempo-final"></p>
-            <button class="btn-modal" id="btn-siguiente" onclick="siguienteNivel()">SIGUIENTE TEMA</button>
+            <button onclick="siguienteNivel()" style="padding:10px 20px; cursor:pointer; font-weight:bold;">SIGUIENTE TEMA</button>
         </div>
     </div>
 
     <script>
         const niveles = [
             { t: "Nivel 1: Entrenamiento Deportivo", p: [{id:1,c:"Calentamiento"},{id:1,c:"Prevención Lesiones"},{id:2,c:"Estiramiento"},{id:2,c:"Flexibilidad"},{id:3,c:"Pesas"},{id:3,c:"Fuerza Muscular"},{id:4,c:"Cronómetro"},{id:4,c:"Control de Tiempo"},{id:5,c:"Hidratación"},{id:5,c:"Beber Agua"},{id:6,c:"Recuperación"},{id:6,c:"Descanso Post-Esfuerzo"},{id:7,c:"Puntos"},{id:7,c:"Marcador"},{id:8,c:"Uniforme"},{id:8,c:"Identidad de Equipo"},{id:9,c:"Entrenador"},{id:9,c:"Liderazgo y Guía"},{id:10,c:"Silbato"},{id:10,c:"Inicio y Fin"},{id:11,c:"Conos"},{id:11,c:"Circuito de Agilidad"},{id:12,c:"Balón"},{id:12,c:"Elemento de Juego"},{id:13,c:"Capitán"},{id:13,c:"Representante Campo"},{id:14,c:"Táctica"},{id:14,c:"Plan de Juego"},{id:15,c:"Medalla"},{id:15,c:"Premio al Éxito"}]},
-            { t: "Nivel 2: Reglas y Arbitraje", p: [{id:1,c:"Tarjeta Roja"},{id:1,c:"Expulsión"},{id:2,c:"Tarjeta Amarilla"},{id:2,c:"Amonestación"},{id:3,c:"Fuera de Juego"},{id:3,c:"Posición Adelantada"},{id:4,c:"Penalti"},{id:4,c:"Falta en el Área"},{id:5,c:"Córner"},{id:5,c:"Saque de Esquina"},{id:6,c:"Árbitro"},{id:6,c:"Juez del Partido"},{id:7,c:"VAR"},{id:7,c:"Apoyo en Video"},{id:8,c:"Falta"},{id:8,c:"Infracción"},
+            { t: "Nivel 2: Reglas y Arbitraje", p: [{id:1,c:"Tarjeta Roja"},{id:1,c:"Expulsión"},{id:2,c:"Tarjeta Amarilla"},{id:2,c:"Amonestación"},{id:3,c:"Fuera de Juego"},{id:3,c:"Posición Adelantada"},{id:4,c:"Penalti"},{id:4,c:"Falta en el Área"},{id:5,c:"Córner"},{id:5,c:"Saque de Esquina"},{id:6,c:"Árbitro"},{id:6,c:"Juez del Partido"},{id:7,c:"VAR"},{id:7,c:"Apoyo en Video"},{id:8,c:"Falta"},{id:8,c:"Infracción"},{id:9,c:"Mano"},{id:9,c:"Contacto Ilegal"},{id:10,c:"Tiempo Extra"},{id:10,c:"Prórroga"},{id:11,c:"Banda"},{id:11,c:"Saque Lateral"},{id:12,c:"Portero"},{id:12,c:"Guardián del Arco"},{id:13,c:"Gol"},{id:13,c:"Punto Máximo"},{id:14,c:"Barrera"},{id:14,c:"Defensa en Tiro Libre"},{id:15,c:"Sustitución"},{id:15,c:"Cambio de Jugador"}]},
+            { t: "Nivel 3: Anatomía Humana", p: [{id:1,c:"Bíceps"},{id:1,c:"Músculo del Brazo"},{id:2,c:"Fémur"},{id:2,c:"Hueso del Muslo"},{id:3,c:"Cerebro"},{id:3,c:"Control Central"},{id:4,c:"Corazón"},{id:4,c:"Bomba de Sangre"},{id:5,c:"Pulmones"},{id:5,c:"Respiración"},{id:6,c:"Columna"},{id:6,c:"Soporte del Cuerpo"},{id:7,c:"Craneo"},{id:7,c:"Protección Cabeza"},{id:8,c:"Rodilla"},{id:8,c:"Articulación Pierna"},{id:9,c:"Abdominales"},{id:9,c:"Músculos del Tronco"},{id:10,c:"Tobillo"},{id:10,c:"Unión Pie-Pierna"},{id:11,c:"Codo"},{id:11,c:"Flexión del Brazo"},{id:12,c:"Hombro"},{id:12,c:"Unión Brazo-Tronco"},{id:13,c:"Dientes"},{id:13,c:"Masticación"},{id:14,c:"Piel"},{id:14,c:"Órgano más Grande"},{id:15,c:"Costillas"},{id:15,c:"Protección Tórax"}]},
+            { t: "Nivel 4: Capacidades Físicas", p: [{id:1,c:"Resistencia"},{id:1,c:"Aguante Largo Tiempo"},{id:2,c:"Velocidad"},{id:2,c:"Rapidez en Corto"},{id:3,c:"Flexibilidad"},{id:3,c:"Rango de Movimiento"},{id:4,c:"Fuerza"},{id:4,c:"Vencer una Carga"},{id:5,c:"Equilibrio"},{id:5,c:"Mantener la Postura"},{id:6,c:"Coordinación"},{id:6,c:"Movimiento Preciso"},{id:7,c:"Agilidad"},{id:7,c:"Cambio de Dirección"},{id:8,c:"Potencia"},{id:8,c:"Fuerza con Velocidad"},{id:9,c:"Reflejos"},{id:9,c:"Reacción Rápida"},{id:10,c:"Ritmo"},{id:10,c:"Cadencia del Paso"},{id:11,c:"Salto"},{id:11,c:"Impulso Vertical"},{id:12,c:"Giro"},{id:12,c:"Rotación del Cuerpo"},{id:13,c:"Empuje"},{id:13,c:"Fuerza de Salida"},{id:14,c:"Lanzamiento"},{id:14,c:"Enviar un Objeto"},{id:15,c:"Precisión"},{id:15,c:"Puntería y Acierto"}]},
+            { t: "Nivel 5: Técnica y Táctica", p: [{id:1,c:"Pase Corto"},{id:1,c:"Seguridad"},{id:2,c:"Remate"},{id:2,c:"Tiro a Puerta"},{id:3,c:"Regate"},{id:3,c:"Drible o Finta"},{id:4,c:"Control"},{id:4,c:"Dominio del Balón"},{id:5,c:"Centro"},{id:5,c:"Balón al Área"},{id:6,c:"Bloqueo"},{id:6,c:"Defensa de Tiro"},{id:7,c:"Rebote"},{id:7,c:"Recuperar Balón"},{id:8,c:"Marca"},{id:8,c:"Seguir al Rival"},{id:9,c:"Desmarque"},{id:9,c:"Buscar Espacio"},{id:10,c:"Pared"},{id:10,c:"Pase y Devolución"},{id:11,c:"Estrategia"},{id:11,c:"Plan General"},{id:12,c:"Ataque"},{id:12,c:"Ofensiva"},{id:13,c:"Defensa"},{id:13,c:"Protección Arco"},{id:14,c:"Presión"},{id:14,c:"Quitar Espacio"},{id:15,c:"Finalización"},{id:15,c:"Terminar la Jugada"}]}
+        ];
+
+        let nivelActual = 0, elegidas = [], aciertos = 0, segs = 0, timer, andando = false;
+
+        document.getElementById('btn-iniciar').addEventListener('click', function() {
+            document.getElementById('pantalla-inicio').style.display = 'none';
+            document.getElementById('juego-contenedor').style.display = 'flex';
+            iniciarTablero();
+        });
+
+        function iniciarTablero() {
+            const tab = document.getElementById('tablero'); tab.innerHTML = '';
+            document.getElementById('nivel-titulo').innerText = niveles[nivelActual].t;
+            const mazo = [...niveles[nivelActual].p].sort(() => Math.random() - 0.5);
+            mazo.forEach(p => {
+                const div = document.createElement('div'); div.className = 'carta'; div.innerText = "⚽";
+                div.onclick = function() {
+                    if(!andando) { timer = setInterval(actualizarReloj, 1000); andando = true; }
+                    if(elegidas.length < 2 && !div.classList.contains('volteada')) {
+                        div.classList.add('volteada'); div.innerText = p.c; elegidas.push({div, p});
+                        if(elegidas.length === 2) {
+                            if(elegidas[0].p.id === elegidas[1].p.id) {
+                                setTimeout(() => { elegidas.forEach(e => e.div.classList.add('correcta')); elegidas = []; aciertos++; if(aciertos === 15) terminarNivel(); }, 400);
+                            } else {
+                                setTimeout(() => { elegidas.forEach(e => { e.div.classList.remove('
